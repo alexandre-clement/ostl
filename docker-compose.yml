@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  gcc:
+    image: gcc
+    build:
+      context: ./ostl
+      dockerfile: ../environment/compilation/Dockerfile
+      args:
+        CC: gcc-10
+        CXX: g++-10
+    volumes:
+      - ./out/gcc:/usr/ostl/out
+  clang:
+    image: clang
+    build:
+      context: ./ostl
+      dockerfile: ../environment/compilation/Dockerfile
+      args:
+        CC: clang-11
+        CXX: clang++-11
+    volumes:
+      - ./out/clang:/usr/ostl/out
