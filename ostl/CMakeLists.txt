@@ -19,3 +19,5 @@ find_package(glfw3 CONFIG REQUIRED)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 add_subdirectory("source")
+add_subdirectory("example")
+

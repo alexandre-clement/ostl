@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include <vulkan/vulkan.hpp>
-
 namespace ostl
 {
     class window
