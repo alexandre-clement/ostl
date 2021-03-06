@@ -14,6 +14,6 @@ make_executable(${executable_name} ${CMAKE_CURRENT_LIST_DIR})
 
 target_link_libraries(
   ${executable_name}
-  PRIVATE
+  PUBLIC
     ostl
 )

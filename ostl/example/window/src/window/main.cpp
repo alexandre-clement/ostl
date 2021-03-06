@@ -1,2 +1,7 @@
+#include <ostl/window.hpp>
 
-int main() { return 0; }
+int main()
+{
+    ostl::window window;
+    return 0;
+}
