@@ -2,6 +2,7 @@ FROM nvidia/vulkan:1.1.121
 
 RUN export DEBIAN_FRONTEND=noninteractive  \
     && apt-get update \
+    && apt-get upgrade -y \
     && apt install -y \
         wget \
         gnupg2 \
@@ -22,9 +23,12 @@ RUN export DEBIAN_FRONTEND=noninteractive  \
         xorg-dev \
         libglu1-mesa-dev \
     && add-apt-repository ppa:ubuntu-toolchain-r/test \
+    && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null \
+    && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
     && readonly DEBIAN_PACKAGES="g++-10" \
     && readonly CLANG_PACKAGES="11" \
     && apt-get update \
+    && apt-get upgrade -y \
     && apt install -y \
         g++-10 \
     && wget https://apt.llvm.org/llvm.sh \
@@ -41,8 +45,7 @@ RUN ./vcpkg/vcpkg install \
     fmt \
     spdlog \
     gtest \
-    glfw3 \
-    shaderwriter
+    glfw3
 
 ARG CC=gcc
 ARG CXX=g++
