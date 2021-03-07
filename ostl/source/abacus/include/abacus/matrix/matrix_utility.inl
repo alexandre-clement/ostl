@@ -1,5 +1,5 @@
 
-namespace heron
+namespace abacus
 {
     template<class _scalar_type, index _rows, index _columns>
     constexpr index matrix<_scalar_type, _rows, _columns>::rows() const
@@ -43,4 +43,4 @@ namespace heron
     {
         return _rows == _columns;
     }
-}  // namespace heron
+}  // namespace abacus

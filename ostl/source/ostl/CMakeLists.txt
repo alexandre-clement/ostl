@@ -15,5 +15,5 @@ make_library(${library_name} ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(
   ${library_name}
   PRIVATE
-    heron
+    abacus
 )

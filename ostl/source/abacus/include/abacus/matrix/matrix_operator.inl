@@ -1,5 +1,5 @@
 
-namespace heron
+namespace abacus
 {
     template<class scalar_type, index rows, index columns, convertible_to<scalar_type> operand>
     constexpr matrix<scalar_type, rows, columns> operator+(const matrix<scalar_type, rows, columns>& m, operand s)
@@ -298,4 +298,4 @@ namespace heron
         }
         return *this;
     }
-}  // namespace heron
+}  // namespace abacus

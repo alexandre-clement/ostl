@@ -59,7 +59,6 @@ ENV cc=${CC}
 ENV cxx=${CXX}
 
 ENTRYPOINT ["/bin/sh", "-c"]
-# CMD ["ctest", "--verbose"]
 CMD ["cmake \
         -G \"Unix Makefiles\" \
         -DCMAKE_C_COMPILER=${cc} \
@@ -67,4 +66,5 @@ CMD ["cmake \
         -DCMAKE_TOOLCHAIN_FILE=/vcpkg/scripts/buildsystems/vcpkg.cmake \
         .. \
     && make all VERBOSE=1 \
-    && ./source/ostl/ostl"]
+    && ./source/ostl/ostl \
+    && ctest --verbose"]

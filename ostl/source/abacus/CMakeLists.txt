@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(library_name "heron")
+set(library_name "abacus")
 
 project(
     ${library_name}

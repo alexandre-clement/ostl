@@ -2,7 +2,7 @@
 
 #include "matrix_base.hpp"
 
-namespace heron
+namespace abacus
 {
     // hack class to be able to create a sfinea method for matrix
     // see matrix::operator*=
@@ -98,6 +98,6 @@ namespace heron
     using mat4x3 = matrix<float, 4, 3>;
     using mat4x4 = matrix<float, 4, 4>;
     using mat4 = mat4x4;
-}  // namespace heron
+}  // namespace abacus
 
 #include "matrix.inl"

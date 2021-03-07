@@ -1,5 +1,5 @@
 
-namespace heron
+namespace abacus
 {
     template<class _scalar_type, index _rows, index _columns>
     constexpr matrix<_scalar_type, _rows, _columns>::matrix()
@@ -56,4 +56,4 @@ namespace heron
         this->at(row, column) = static_cast<scalar_type>(h);
         initialize<i + 1>(t...);
     }
-}  // namespace heron
+}  // namespace abacus

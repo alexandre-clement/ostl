@@ -1,4 +1,4 @@
-namespace heron
+namespace abacus
 {
     template<class _scalar_type, index rows, index columns, template<class, index, index> class vector>
     constexpr typename array<_scalar_type, rows, columns, vector>::scalar_ref
@@ -301,4 +301,4 @@ namespace heron
         }
         throw std::out_of_range("");
     }
-}  // namespace heron
+}  // namespace abacus

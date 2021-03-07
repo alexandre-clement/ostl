@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace heron
+namespace abacus
 {
     using index = std::size_t;
 
@@ -118,7 +118,7 @@ namespace heron
         scalar_type x, y;
     };
 
-#ifdef heron_matrix_type_aligned
+#ifdef abacus_matrix_type_aligned
     #define vec3_alignment alignas(sizeof(scalar_type) * 4)
 #else
     #define vec3_alignment
@@ -175,6 +175,6 @@ namespace heron
 
         scalar_type x, y, z, w;
     };
-}  // namespace heron
+}  // namespace abacus
 
 #include "matrix_base.inl"
