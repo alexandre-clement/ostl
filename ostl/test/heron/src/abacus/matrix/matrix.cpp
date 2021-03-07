@@ -123,27 +123,27 @@ TEST(matrix, matrix_diagonal_constructor)
 }
 
 #define test_operator(callback)                                                                                        \
-    callback(abacus::vec2(2), 1);                                                                                       \
-    callback(abacus::vec3(3), 4);                                                                                       \
-    callback(abacus::vec4(7), 11);                                                                                      \
+    callback(abacus::vec2(2), 1);                                                                                      \
+    callback(abacus::vec3(3), 4);                                                                                      \
+    callback(abacus::vec4(7), 11);                                                                                     \
                                                                                                                        \
-    callback(abacus::mat2x2(1), 1);                                                                                     \
-    callback(abacus::mat2x3(2), 3);                                                                                     \
-    callback(abacus::mat2x4(5), 8);                                                                                     \
-    callback(abacus::mat3x2(13), 21);                                                                                   \
-    callback(abacus::mat3x3(34), 55);                                                                                   \
-    callback(abacus::mat3x4(89), 144);                                                                                  \
-    callback(abacus::mat4x2(233), 377);                                                                                 \
-    callback(abacus::mat4x3(610), 987);                                                                                 \
-    callback(abacus::mat4x4(1597), 2584);                                                                               \
+    callback(abacus::mat2x2(1), 1);                                                                                    \
+    callback(abacus::mat2x3(2), 3);                                                                                    \
+    callback(abacus::mat2x4(5), 8);                                                                                    \
+    callback(abacus::mat3x2(13), 21);                                                                                  \
+    callback(abacus::mat3x3(34), 55);                                                                                  \
+    callback(abacus::mat3x4(89), 144);                                                                                 \
+    callback(abacus::mat4x2(233), 377);                                                                                \
+    callback(abacus::mat4x3(610), 987);                                                                                \
+    callback(abacus::mat4x4(1597), 2584);                                                                              \
                                                                                                                        \
-    callback(abacus::mat4x4(256), 128ll);                                                                               \
-    callback(abacus::mat4x4(64), ' ');                                                                                  \
-    callback(abacus::mat4x4(16), 8l);                                                                                   \
-    callback(abacus::mat4x4(4), 2u);                                                                                    \
-    callback(abacus::mat4x4(1), .5);                                                                                    \
-    callback(abacus::mat4x4(.25), .125);                                                                                \
-    callback(abacus::mat4x4(.0625), .03125f);                                                                           \
+    callback(abacus::mat4x4(256), 128ll);                                                                              \
+    callback(abacus::mat4x4(64), ' ');                                                                                 \
+    callback(abacus::mat4x4(16), 8l);                                                                                  \
+    callback(abacus::mat4x4(4), 2u);                                                                                   \
+    callback(abacus::mat4x4(1), .5);                                                                                   \
+    callback(abacus::mat4x4(.25), .125);                                                                               \
+    callback(abacus::mat4x4(.0625), .03125f);                                                                          \
     callback(abacus::mat4x4(0.015625), 0.0078125f);
 
 template<class matrix, class scalar>
@@ -553,7 +553,8 @@ TEST(matrix, matrix_minus_equal_matrix)
     test_matrix_minus_equal_matrix(abacus::mat2x4(1, 3, 1, 3, 3, 2, 1, 5), abacus::mat2x4(2, 3, 2, 3, 1, 4, 2, 4));
 
     test_matrix_minus_equal_matrix(abacus::mat3x2(2, 2, 1, 4, 1, 2), abacus::mat3x2(3, 6, 2, 3, 1, 3));
-    test_matrix_minus_equal_matrix(abacus::mat3x3(2, 3, 1, 5, 1, 2, 3, 3, 2), abacus::mat3x3(3, 1, 5, 4, 2, 1, 4, 2, 2));
+    test_matrix_minus_equal_matrix(
+      abacus::mat3x3(2, 3, 1, 5, 1, 2, 3, 3, 2), abacus::mat3x3(3, 1, 5, 4, 2, 1, 4, 2, 2));
     test_matrix_minus_equal_matrix(
       abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3), abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
 

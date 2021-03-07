@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(
-    "ostl"
+    "OSTL"
     VERSION 1.0
     LANGUAGES CXX
     DESCRIPTION "OSTL is an open source C++ sphere tracing library."
