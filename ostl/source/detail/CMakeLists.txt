@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(library_name "ostl")
+set(library_name "detail")
 
 project(
     ${library_name}
@@ -11,12 +11,3 @@ project(
 include(make-library)
 
 make_library(${library_name} ${CMAKE_CURRENT_LIST_DIR})
-
-target_link_libraries(
-  ${library_name}
-  PUBLIC
-    abacus
-    detail
-    caldera
-    glass
-)
