@@ -4,5 +4,5 @@
 
 namespace ostl
 {
-    namespace event = glass::event;
+    namespace keyboard = glass::keyboard;
 }

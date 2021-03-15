@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "event/keyboard.hpp"
-#include "event/handler.hpp"
+#include "handler.hpp"
+#include "keyboard/key.hpp"
 
 namespace glass
 {
@@ -24,8 +24,8 @@ namespace glass
         virtual void poll_events() = 0;
         virtual void draw() = 0;
 
-        void press(event::key);
+        void press(keyboard::key);
 
-        event::handler event_handler;
+        handler event_handler;
     };
 }  // namespace glass

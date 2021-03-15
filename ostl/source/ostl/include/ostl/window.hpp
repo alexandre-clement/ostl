@@ -39,7 +39,7 @@ namespace ostl
 
         void render();
 
-        void set_key_callback(ostl::event::key_callback kc);
+        void set_key_callback(ostl::keyboard::callback kc);
 
     private:
         std::unique_ptr<glass::glass> m_glass;

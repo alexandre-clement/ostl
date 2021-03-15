@@ -6,15 +6,5 @@
 
 namespace caldera
 {
-    glass::event::key glfw_key_convert(int key)
-    {
-        switch (key)
-        {
-            case GLFW_KEY_ESCAPE:
-                return glass::event::key::escape;
-                break;
-            default:
-                return glass::event::key::unknown;
-        }
-    }
+    glass::keyboard::key glfw_key_convert(int key);
 }  // namespace caldera

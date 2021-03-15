@@ -6,8 +6,8 @@ int main()
 {
     ostl::window window("simple window");
 
-    window.set_key_callback([&](ostl::event::key_event key) {
-        if (key.keycode == ostl::event::key::escape && key.action == ostl::event::action::press)
+    window.set_key_callback([&](ostl::keyboard::event key) {
+        if (key.keycode == ostl::keyboard::key::escape && key.key_action == ostl::keyboard::action::press)
         {
             window.close();
         }

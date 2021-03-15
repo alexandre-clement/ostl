@@ -78,3 +78,4 @@ clean-docker: ## Clean docker's output directory
 
 clean: ## Clean the local output directory
 	@rm -rf ostl/out
+	@rm -rf ostl/build

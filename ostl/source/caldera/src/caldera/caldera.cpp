@@ -41,7 +41,7 @@ namespace caldera
     void caldera::_key_callback(glfw_pointer p_window, int key, int scancode, int action, int mods)
     {
         caldera self = controller(p_window);
-        ::glass::event::key k = glfw_key_convert(key);
+        ::glass::keyboard::key k = glfw_key_convert(key);
 
         switch (action)
         {

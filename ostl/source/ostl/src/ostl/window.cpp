@@ -21,5 +21,5 @@ namespace ostl
 
     void window::render() {}
 
-    void window::set_key_callback(ostl::event::key_callback kc) { m_glass->event_handler.use_listener(kc); }
+    void window::set_key_callback(ostl::keyboard::callback kc) { m_glass->event_handler.use_listener(kc); }
 }  // namespace ostl

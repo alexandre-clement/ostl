@@ -2,6 +2,6 @@
 
 namespace glass
 {
-    void glass::press(event::key k) {}
+    void glass::press(keyboard::key k) {}
 
 }  // namespace glass
