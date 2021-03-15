@@ -66,6 +66,5 @@ CMD ["cmake \
         -DCMAKE_TOOLCHAIN_FILE=/vcpkg/scripts/buildsystems/vcpkg.cmake \
         .. \
     && make all VERBOSE=1 \
-    && chmod u+x ./source/ostl/ostl \
-    && ./source/ostl/ostl \
-    && ctest --verbose"]
+    && ctest --verbose \
+"]

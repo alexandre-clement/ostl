@@ -13,4 +13,4 @@ namespace caldera
                 return glass::keyboard::key::unknown;
         }
     }
-}
+}  // namespace caldera
