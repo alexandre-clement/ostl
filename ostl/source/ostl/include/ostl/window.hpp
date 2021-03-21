@@ -43,7 +43,7 @@ namespace ostl
         void set_key_callback(ostl::keyboard::callback kc);
 
     private:
-        std::unique_ptr<glass::glass> m_glass;
+        std::unique_ptr<glass::base> m_glass;
     };
 
     template<drawable object>

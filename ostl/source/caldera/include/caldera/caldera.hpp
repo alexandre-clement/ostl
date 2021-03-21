@@ -10,7 +10,7 @@
 
 namespace caldera
 {
-    class caldera : public glass::glass
+    class caldera : public glass::base
     {
     public:
         caldera(std::string);
