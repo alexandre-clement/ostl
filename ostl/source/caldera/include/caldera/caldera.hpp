@@ -35,6 +35,6 @@ namespace caldera
 
         static caldera& controller(glfw_pointer);
 
-        static void _key_callback(glfw_pointer, int, int, int, int);
+        static void key_callback(glfw_pointer, int, int, int, int);
     };
 }  // namespace caldera

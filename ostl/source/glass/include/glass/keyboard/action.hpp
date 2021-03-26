@@ -4,8 +4,9 @@ namespace glass::keyboard
 {
     enum class action
     {
-        unknown,
-        press,
+        unknown = -1,
+
+        press = 0,
         hold,
         release,
 

@@ -11,7 +11,7 @@ namespace caldera
         m_window = glfwCreateWindow(mode->width, mode->height, m_title.c_str(), nullptr, nullptr);
 
         glfwSetWindowUserPointer(m_window, this);
-        glfwSetKeyCallback(m_window, _key_callback);
+        glfwSetKeyCallback(m_window, key_callback);
     }
 
     [[nodiscard]] bool caldera::is_open() const { return !glfwWindowShouldClose(m_window); }
@@ -38,9 +38,9 @@ namespace caldera
         return *reinterpret_cast<caldera*>(glfwGetWindowUserPointer(p_window));
     }
 
-    void caldera::_key_callback(glfw_pointer p_window, int key, int scancode, int action, int mods)
+    void caldera::key_callback(glfw_pointer p_window, int key, int scancode, int action, int mods)
     {
-        caldera self = controller(p_window);
+        caldera& self = controller(p_window);
         glass::keyboard::key k = glfw_key_convert(key);
 
         switch (action)
