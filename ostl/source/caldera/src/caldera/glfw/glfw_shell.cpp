@@ -1,5 +1,7 @@
 #include "caldera/glfw/glfw_shell.hpp"
 
+#include <GLFW/glfw3.h>
+
 namespace caldera
 {
     glfw_shell::glfw_shell()

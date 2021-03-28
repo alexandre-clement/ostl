@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <functional>
+#include <string>
 
 #include <GLFW/glfw3.h>
 
@@ -27,21 +27,11 @@ namespace caldera
 
         void poll_events() override;
 
-        protected:
-        [[nodiscard]] std::vector<const char*> required_extensions() const;
-
-        template<class surface, class instance>
-        std::function<surface(instance)> meta_surface_maker()
-        {
-            return [&](instance p_instance) -> surface {
-                surface s;
-                glfwCreateWindowSurface(p_instance, m_window, nullptr, &s);
-                return s;
-            };
-        }
+        using glfw_pointer = GLFWwindow*;
+        [[nodiscard]] glfw_pointer handle();
+        [[nodiscard]] glfw_pointer handle() const;
 
     private:
-        using glfw_pointer = GLFWwindow*;
         glfw_pointer m_window;
         std::string m_title;
 

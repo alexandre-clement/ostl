@@ -3,37 +3,23 @@
 #include <string>
 
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <glass/glass.hpp>
-
 #include "glfw/glfw.hpp"
 #include "vulkan/vulkan.hpp"
 
 namespace caldera
 {
-    template<class window, class renderer>
-    class base : public window
+    class caldera : public glfw
     {
     public:
-        base(std::string p_title)
-            : window(p_title)
-            , m_renderer(configuration{
-                p_title,
-                20210328,
-                debug::none,
-                this->required_extensions(),
-                this->meta_surface_maker<renderer::surface, renderer::instance>()})
-        {
-        }
+        caldera(std::string p_title);
+        virtual ~caldera() = default;
 
-        virtual ~base() = default;
-
-        void draw() override {}
+        void draw() override;
 
     private:
-        renderer m_renderer;
-    };
+        surface_maker create_surface_maker();
+        [[nodiscard]] std::vector<const char*> required_extensions() const;
 
-    using caldera = base<glfw, vulkan>;
+        vulkan m_renderer;
+    };
 }  // namespace caldera

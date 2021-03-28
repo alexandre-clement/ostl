@@ -4,10 +4,7 @@
 
 namespace caldera
 {
-    vulkan::vulkan(configuration p_configuration) : m_configuration(std::move(p_configuration))
-    {
-        create_instance();
-    }
+    vulkan::vulkan(configuration p_configuration) : m_configuration(std::move(p_configuration)) { create_instance(); }
 
     vulkan::~vulkan()
     {

@@ -1,5 +1,7 @@
 #include "caldera/glfw/glfw_utils.hpp"
 
+#include <GLFW/glfw3.h>
+
 namespace caldera
 {
     glass::keyboard::key glfw_key_convert(int key)

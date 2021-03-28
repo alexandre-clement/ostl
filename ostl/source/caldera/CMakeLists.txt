@@ -15,8 +15,8 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 string(REPLACE "-" "" CALDERA_VERSION ${GIT_COMMIT_DATE})
-add_definitions("-DCALDERA_VERSION=\"${CALDERA_VERSION}\"")
-message(STATUS "\t\tAdding definition -DCALDERA_VERSION=\"${CALDERA_VERSION}\"")
+message(STATUS "\t\tAdding definition -DCALDERA_VERSION=${CALDERA_VERSION}")
+add_definitions("-DCALDERA_VERSION=${CALDERA_VERSION}")
 
 include(make-library)
 

@@ -1,10 +1,10 @@
 #include "caldera/glfw/glfw.hpp"
+
 #include "caldera/glfw/glfw_utils.hpp"
 
 namespace caldera
 {
-    glfw::glfw(std::string p_title)
-        : m_title(std::move(p_title))
+    glfw::glfw(std::string p_title) : m_title(std::move(p_title))
     {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -31,17 +31,8 @@ namespace caldera
 
     void glfw::poll_events() { glfwPollEvents(); }
 
-    std::vector<const char*> glfw::required_extensions() const
-    {
-        std::vector<const char*> required_extensions;
-        std::uint32_t count = 0;
-        const char** glfw_required_extensions = glfwGetRequiredInstanceExtensions(&count);
-        for (const char** index = glfw_required_extensions; index < glfw_required_extensions + count; ++index)
-        {
-            required_extensions.push_back(*index);
-        }
-        return required_extensions;
-    }
+    [[nodiscard]] glfw::glfw_pointer glfw::handle() { return m_window; }
+    [[nodiscard]] glfw::glfw_pointer glfw::handle() const { return m_window; }
 
     glfw& glfw::controller(glfw_pointer p_window)
     {

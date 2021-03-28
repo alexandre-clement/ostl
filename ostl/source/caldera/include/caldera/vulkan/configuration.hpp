@@ -15,6 +15,6 @@ namespace caldera
         std::uint32_t version;
         debug debug_mode;
         std::vector<c_str> required_extensions;
-        surface_maker<vk::SurfaceKHR::CType, vk::Instance> create_surface;
+        surface_maker create_surface;
     };
 }  // namespace caldera
