@@ -3,10 +3,12 @@
 #include <string>
 
 #define GLFW_INCLUDE_VULKAN
-#include "glfw/glfw_shell.hpp"
 #include <GLFW/glfw3.h>
+
 #include <glass/glass.hpp>
-#include <vulkan/vulkan.hpp>
+
+#include "glfw/glfw_shell.hpp"
+#include "renderer/renderer.hpp"
 
 namespace caldera
 {
@@ -32,6 +34,7 @@ namespace caldera
         using glfw_pointer = GLFWwindow*;
         glfw_pointer m_window;
         std::string m_title;
+        renderer m_renderer;
 
         static caldera& controller(glfw_pointer);
 

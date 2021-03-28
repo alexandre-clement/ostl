@@ -3,11 +3,12 @@
 #include <memory>
 #include <string>
 
+#include <glass/glass.hpp>
+
 #include "drawer.hpp"
 #include "event.hpp"
 #include "texture.hpp"
 #include "texture/no_texture.hpp"
-#include <glass/glass.hpp>
 
 namespace ostl
 {

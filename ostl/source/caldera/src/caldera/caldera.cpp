@@ -4,7 +4,9 @@
 
 namespace caldera
 {
-    caldera::caldera(std::string p_title) : m_title(p_title)
+    caldera::caldera(std::string p_title)
+        : m_title(std::move(p_title))
+        , m_renderer(configuration{p_title, 20210328, debug::none, glfw_required_extensions()})
     {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
