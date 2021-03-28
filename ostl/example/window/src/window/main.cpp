@@ -4,6 +4,7 @@
 
 int main()
 {
+    detail::set_level(detail::level::level_enum::trace);
     ostl::window window("simple window");
 
     window.set_key_callback([&](ostl::keyboard::event key) {
