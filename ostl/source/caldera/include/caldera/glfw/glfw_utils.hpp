@@ -11,6 +11,4 @@
 namespace caldera
 {
     glass::keyboard::key glfw_key_convert(int key);
-
-    std::vector<const char*> glfw_required_extensions();
 }  // namespace caldera

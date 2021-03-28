@@ -13,11 +13,14 @@
 
 namespace caldera
 {
-    class renderer : private detail::loggable<renderer>
+    class vulkan : private detail::loggable<vulkan>
     {
     public:
-        renderer(configuration);
-        ~renderer();
+        using instance = vk::Instance;
+        using surface = vk::SurfaceKHR::CType;
+
+        vulkan(configuration);
+        ~vulkan();
 
     private:
         void create_instance();
@@ -26,6 +29,7 @@ namespace caldera
         const std::string engine_name = "caldera";
         const std::uint32_t engine_version = caldera_version;
 
-        vk::Instance m_instance;
+        instance m_instance;
+        vk::SurfaceKHR m_surface;
     };
 }  // namespace caldera

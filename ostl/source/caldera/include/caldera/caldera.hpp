@@ -7,37 +7,33 @@
 
 #include <glass/glass.hpp>
 
-#include "glfw/glfw_shell.hpp"
-#include "renderer/renderer.hpp"
+#include "glfw/glfw.hpp"
+#include "vulkan/vulkan.hpp"
 
 namespace caldera
 {
-    class caldera : public glass::base
+    template<class window, class renderer>
+    class base : public window
     {
     public:
-        caldera(std::string);
-        virtual ~caldera() = default;
+        base(std::string p_title)
+            : window(p_title)
+            , m_renderer(configuration{
+                p_title,
+                20210328,
+                debug::none,
+                this->required_extensions(),
+                this->meta_surface_maker<renderer::surface, renderer::instance>()})
+        {
+        }
 
-        [[nodiscard]] bool is_open() const override;
+        virtual ~base() = default;
 
-        void close() override;
-
-        void minimize() override;
-        void maximize() override;
-        void fullscreen() override;
-
-        void poll_events() override;
-
-        void draw() override;
+        void draw() override {}
 
     private:
-        using glfw_pointer = GLFWwindow*;
-        glfw_pointer m_window;
-        std::string m_title;
         renderer m_renderer;
-
-        static caldera& controller(glfw_pointer);
-
-        static void key_callback(glfw_pointer, int, int, int, int);
     };
+
+    using caldera = base<glfw, vulkan>;
 }  // namespace caldera

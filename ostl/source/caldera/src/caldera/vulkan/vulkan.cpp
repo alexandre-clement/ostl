@@ -1,21 +1,21 @@
-#include "caldera/renderer/renderer.hpp"
+#include "caldera/vulkan/vulkan.hpp"
 
-#include "caldera/renderer/debugger.hpp"
+#include "caldera/vulkan/debugger.hpp"
 
 namespace caldera
 {
-    renderer::renderer(configuration p_configuration) : m_configuration(std::move(p_configuration))
+    vulkan::vulkan(configuration p_configuration) : m_configuration(std::move(p_configuration))
     {
         create_instance();
     }
 
-    renderer::~renderer()
+    vulkan::~vulkan()
     {
         log.trace("destroying vulkan instance");
         m_instance.destroy(nullptr);
     }
 
-    void renderer::create_instance()
+    void vulkan::create_instance()
     {
         log.trace("creating vulkan instance");
         log.info("instance information : [name : \"{}\", version : {}]", engine_name, engine_version);
