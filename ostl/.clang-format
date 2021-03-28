@@ -60,9 +60,9 @@ IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '<[[:alnum:]._]+>'
     Priority:        1
-  - Regex:           '^<(gtest|gmock)/[[:alnum:].]+>'
+  - Regex:           '^<(gtest|gmock|GLFW|vulkan|spdlog)/[[:alnum:].]+>'
     Priority:        2
-  - Regex:           '<detail/[[:alnum:].]+>'
+  - Regex:           '<(detail|abacus|glass|caldera|ostl)/[[:alnum:].]+>'
     Priority:        3
   - Regex:           '.*'
     Priority:        4
