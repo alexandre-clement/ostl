@@ -3,6 +3,7 @@
 #include "collection/set.hpp"
 #include "collection/tuple.hpp"
 #include "concepts/concepts.hpp"
+#include "functools/functools.hpp"
 #include "itertools/itertools.hpp"
 #include "logging/logging.hpp"
 #include "pattern/compose.hpp"

@@ -1,6 +1,6 @@
 #include "caldera/vulkan/vulkan.hpp"
 
-#include "caldera/vulkan/debugger.hpp"
+#include <set>
 
 namespace caldera
 {
@@ -35,12 +35,14 @@ namespace caldera
         create_instance();
         bind_surface();
         pick_physical_device();
+        create_logical_device();
     }
 
     vulkan::~vulkan()
     {
         log.trace("destroying vulkan instance");
 
+        m_device.destroy();
         m_instance.destroySurfaceKHR(m_surface);
         m_instance.destroy(nullptr);
     }
@@ -50,9 +52,8 @@ namespace caldera
         log.trace("creating vulkan instance");
         log.info("instance information : [name : \"{}\", version : {}]", engine_name, engine_version);
 
-        debugger d;
         std::vector<c_str> extensions = m_configuration.required_extensions;
-        extensions.insert(extensions.end(), d.extensions.begin(), d.extensions.end());
+        extensions.insert(extensions.end(), m_debugger.extensions.begin(), m_debugger.extensions.end());
 
         log.info("{} vulkan extensions required :", extensions.size());
         for (const auto ext : extensions)
@@ -67,13 +68,14 @@ namespace caldera
                                                                .setEngineVersion(engine_version)
                                                                .setApiVersion(VK_MAKE_VERSION(1, 0, 0));
 
-        const vk::InstanceCreateInfo instance_informations = vk::InstanceCreateInfo()
-                                                               .setPApplicationInfo(&application_informations)
-                                                               .setPNext(&d.messenger_info)
-                                                               .setEnabledLayerCount(d.validation_layers.size())
-                                                               .setPpEnabledLayerNames(d.validation_layers.data())
-                                                               .setEnabledExtensionCount(extensions.size())
-                                                               .setPpEnabledExtensionNames(extensions.data());
+        const vk::InstanceCreateInfo instance_informations =
+          vk::InstanceCreateInfo()
+            .setPApplicationInfo(&application_informations)
+            .setPNext(&m_debugger.messenger_info)
+            .setEnabledLayerCount(m_debugger.validation_layers.size())
+            .setPpEnabledLayerNames(m_debugger.validation_layers.data())
+            .setEnabledExtensionCount(extensions.size())
+            .setPpEnabledExtensionNames(extensions.data());
 
         m_instance = vk::createInstance(instance_informations);
 
@@ -197,6 +199,50 @@ namespace caldera
         auto formats = device.getSurfaceFormatsKHR(m_surface);
         auto present_modes = device.getSurfacePresentModesKHR(m_surface);
         return {capabilities, formats, present_modes};
+    }
+
+    physical_device_properties vulkan::gpu_properties() const
+    {
+        return evaluate_physical_device_properties(m_physical_device).build();
+    }
+
+    void vulkan::create_logical_device()
+    {
+        log.debug("create logical device");
+        physical_device_properties properties = gpu_properties();
+        float priority = 1.0f;
+        std::vector<vk::DeviceQueueCreateInfo> queue_informations;
+        std::set<std::uint32_t> queues_indices = {properties.graphics_family, properties.present_family};
+
+        for (std::uint32_t index : queues_indices)
+        {
+            queue_informations.push_back(
+              vk::DeviceQueueCreateInfo().setQueueFamilyIndex(index).setQueueCount(1).setPQueuePriorities(&priority));
+        }
+        log.debug("{} vulkan extensions will be loaded:", properties.extensions.size());
+        for (const auto& extension : properties.extensions)
+        {
+            log.debug("\t{}", extension);
+        }
+
+        auto vk_extensions = detail::map(
+          properties.extensions, std::function([](const std::string& s) -> const char* { return s.c_str(); }));
+
+        vk::PhysicalDeviceFeatures features = vk::PhysicalDeviceFeatures().setShaderFloat64(true);
+
+        vk::DeviceCreateInfo device_info = vk::DeviceCreateInfo()
+                                             .setFlags(vk::DeviceCreateFlags())
+                                             .setPQueueCreateInfos(queue_informations.data())
+                                             .setQueueCreateInfoCount(queue_informations.size())
+                                             .setEnabledLayerCount(m_debugger.validation_layers.size())
+                                             .setPpEnabledLayerNames(m_debugger.validation_layers.data())
+                                             .setPpEnabledExtensionNames(vk_extensions.data())
+                                             .setEnabledExtensionCount(properties.extensions.size())
+                                             .setPEnabledFeatures(&features);
+
+        m_device = m_physical_device.createDevice(device_info);
+        m_graphics_queue = m_device.getQueue(properties.graphics_family, 0);
+        m_present_queue = m_device.getQueue(properties.present_family, 0);
     }
 
     const char* suitable_physical_device_not_found_exception::what() const noexcept

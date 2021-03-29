@@ -11,6 +11,7 @@
 #include <detail/detail.hpp>
 
 #include "configuration.hpp"
+#include "debugger.hpp"
 #include "utility.hpp"
 
 namespace caldera
@@ -89,14 +90,20 @@ namespace caldera
         [[nodiscard]] std::vector<std::string> get_available_gpu_extensions(const vk::PhysicalDevice&) const;
         [[nodiscard]] std::vector<std::string> get_required_gpu_extensions() const;
         [[nodiscard]] swap_chain_details query_swap_chain_support(const vk::PhysicalDevice&) const;
+        physical_device_properties gpu_properties() const;
+        void create_logical_device();
 
         configuration m_configuration;
+        debugger m_debugger;
         const std::string engine_name = "caldera";
         const std::uint32_t engine_version = caldera_version;
 
         vk::Instance m_instance;
         vk::SurfaceKHR m_surface;
         vk::PhysicalDevice m_physical_device;
+        vk::Device m_device;
+        vk::Queue m_graphics_queue;
+        vk::Queue m_present_queue;
     };
 
     class caldera_exception : public std::exception
