@@ -50,7 +50,7 @@ RUN ./vcpkg/vcpkg install \
 ARG CC=gcc
 ARG CXX=g++
 
-WORKDIR /usr/ostl/out
+WORKDIR /usr/ostl/ostl/out
 VOLUME [ "/usr/ostl" ]
 
 COPY . /usr/ostl/

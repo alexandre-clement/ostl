@@ -4,8 +4,8 @@ services:
   gcc:
     image: gcc
     build:
-      context: ./ostl
-      dockerfile: ../environment/compilation/Dockerfile
+      context: .
+      dockerfile: environment/compilation/Dockerfile
       args:
         CC: gcc-10
         CXX: g++-10
@@ -14,8 +14,8 @@ services:
   clang:
     image: clang
     build:
-      context: ./ostl
-      dockerfile: ../environment/compilation/Dockerfile
+      context: .
+      dockerfile: environment/compilation/Dockerfile
       args:
         CC: clang-11
         CXX: clang++-11

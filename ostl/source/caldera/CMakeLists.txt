@@ -9,12 +9,11 @@ project(
 )
 
 execute_process(
-  COMMAND git log -1 --format=%cs
+  COMMAND git --no-pager log -1 --format=%cd --date=format:%G%m%d
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_COMMIT_DATE
+  OUTPUT_VARIABLE CALDERA_VERSION
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-string(REPLACE "-" "" CALDERA_VERSION ${GIT_COMMIT_DATE})
 message(STATUS "\t\tAdding definition -DCALDERA_VERSION=${CALDERA_VERSION}")
 add_definitions("-DCALDERA_VERSION=${CALDERA_VERSION}")
 
