@@ -73,6 +73,14 @@ namespace caldera
         swap_chain_details swap_chain;
     };
 
+    class queue_sharing_mode
+    {
+    public:
+        const vk::SharingMode sharing_mode;
+        const std::uint32_t index_count;
+        const std::uint32_t* indices;
+    };
+
     class vulkan : private detail::loggable<vulkan>
     {
     public:
@@ -92,6 +100,14 @@ namespace caldera
         [[nodiscard]] swap_chain_details query_swap_chain_support(const vk::PhysicalDevice&) const;
         physical_device_properties gpu_properties() const;
         void create_logical_device();
+        void create_command_pool();
+        void create_swap_chain();
+        [[nodiscard]] vk::SurfaceFormatKHR choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR>&) const;
+        [[nodiscard]] vk::PresentModeKHR choose_swap_present_mode(const std::vector<vk::PresentModeKHR>&) const;
+        [[nodiscard]] vk::Extent2D choose_swap_extent(const vk::SurfaceCapabilitiesKHR&) const;
+        [[nodiscard]] queue_sharing_mode select_sharing_mode(const physical_device_properties&) const;
+        void create_image_views();
+        void create_render_pass();
 
         configuration m_configuration;
         debugger m_debugger;
@@ -104,6 +120,13 @@ namespace caldera
         vk::Device m_device;
         vk::Queue m_graphics_queue;
         vk::Queue m_present_queue;
+        vk::CommandPool m_command_pool;
+        vk::SwapchainKHR m_swap_chain;
+        std::vector<vk::Image> m_images;
+        vk::Format m_format;
+        vk::Extent2D m_extent;
+        std::vector<vk::ImageView> m_image_views;
+        vk::RenderPass m_render_pass;
     };
 
     class caldera_exception : public std::exception

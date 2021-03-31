@@ -1,5 +1,6 @@
 #include "caldera/vulkan/vulkan.hpp"
 
+#include <algorithm>
 #include <set>
 
 namespace caldera
@@ -36,12 +37,23 @@ namespace caldera
         bind_surface();
         pick_physical_device();
         create_logical_device();
+        create_command_pool();
+        create_swap_chain();
+        create_image_views();
+        create_render_pass();
     }
 
     vulkan::~vulkan()
     {
         log.trace("destroying vulkan instance");
 
+        m_device.destroyRenderPass(m_render_pass);
+        for (auto& image_view : m_image_views)
+        {
+            m_device.destroyImageView(image_view);
+        }
+        m_device.destroySwapchainKHR(m_swap_chain);
+        m_device.destroyCommandPool(m_command_pool);
         m_device.destroy();
         m_instance.destroySurfaceKHR(m_surface);
         m_instance.destroy(nullptr);
@@ -243,6 +255,197 @@ namespace caldera
         m_device = m_physical_device.createDevice(device_info);
         m_graphics_queue = m_device.getQueue(properties.graphics_family, 0);
         m_present_queue = m_device.getQueue(properties.present_family, 0);
+    }
+
+    void vulkan::create_command_pool()
+    {
+        vk::CommandPoolCreateInfo info = vk::CommandPoolCreateInfo()
+                                           .setFlags(vk::CommandPoolCreateFlags())
+                                           .setQueueFamilyIndex(gpu_properties().graphics_family);
+
+        m_command_pool = m_device.createCommandPool(info);
+    }
+
+    void vulkan::create_swap_chain()
+    {
+        log.debug("creating vulkan swap chain");
+        auto properties = gpu_properties();
+
+        vk::SwapchainCreateFlagsKHR flags = vk::SwapchainCreateFlagsKHR();
+        std::uint32_t min_image_count = properties.surface_capabilities.minImageCount + 1;
+        if (
+          properties.surface_capabilities.maxImageCount > 0 &&
+          min_image_count > properties.surface_capabilities.maxImageCount)
+        {
+            min_image_count = properties.surface_capabilities.maxImageCount;
+        }
+        vk::SurfaceFormatKHR surface_format = choose_swap_surface_format(properties.surface_formats);
+        m_format = surface_format.format;
+        vk::PresentModeKHR present_mode = choose_swap_present_mode(properties.present_modes);
+        m_extent = choose_swap_extent(properties.surface_capabilities);
+        queue_sharing_mode qsm = select_sharing_mode(properties);
+
+        vk::SwapchainCreateInfoKHR info = vk::SwapchainCreateInfoKHR()
+                                            .setFlags(flags)
+                                            .setSurface(m_surface)
+                                            .setMinImageCount(min_image_count)
+                                            .setImageFormat(m_format)
+                                            .setImageColorSpace(surface_format.colorSpace)
+                                            .setImageExtent(m_extent)
+                                            .setImageArrayLayers(1)
+                                            .setImageSharingMode(qsm.sharing_mode)
+                                            .setQueueFamilyIndexCount(qsm.index_count)
+                                            .setPQueueFamilyIndices(qsm.indices)
+                                            .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
+                                            .setPreTransform(properties.surface_capabilities.currentTransform)
+                                            .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
+                                            .setPresentMode(present_mode)
+                                            .setClipped(VK_TRUE)
+                                            .setOldSwapchain(nullptr);
+
+        m_swap_chain = m_device.createSwapchainKHR(info);
+        m_images = m_device.getSwapchainImagesKHR(m_swap_chain);
+
+        log.info("window size {}x{}", m_extent.width, m_extent.height);
+        log.info("display format {}", vk::to_string(m_format));
+
+        log.trace("successfully created vulkan swap chain");
+    }
+
+    vk::SurfaceFormatKHR
+      vulkan::choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR>& surface_formats) const
+    {
+        for (const auto& surface_format : surface_formats)
+        {
+            if (
+              surface_format.format == vk::Format::eB8G8R8A8Unorm &&
+              surface_format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+            {
+                return surface_format;
+            }
+        }
+        return surface_formats.at(0);
+    }
+
+    vk::PresentModeKHR vulkan::choose_swap_present_mode(const std::vector<vk::PresentModeKHR>& present_modes) const
+    {
+        for (const auto& present_mode : present_modes)
+        {
+            if (present_mode == vk::PresentModeKHR::eMailbox)
+            {
+                return present_mode;
+            }
+        }
+        return vk::PresentModeKHR::eFifo;
+    }
+
+    vk::Extent2D vulkan::choose_swap_extent(const vk::SurfaceCapabilitiesKHR& capabilities) const
+    {
+        if (capabilities.currentExtent.width != UINT32_MAX)
+        {
+            return capabilities.currentExtent;
+        }
+        else
+        {
+            return {
+              std::clamp(
+                m_configuration.framebuffer.x, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+              std::clamp(
+                m_configuration.framebuffer.y, capabilities.minImageExtent.height, capabilities.maxImageExtent.height),
+            };
+        }
+    }
+
+    queue_sharing_mode vulkan::select_sharing_mode(const physical_device_properties& properties) const
+    {
+        if (properties.graphics_family == properties.present_family)
+        {
+            return {vk::SharingMode::eExclusive, 0u, nullptr};
+        }
+        else
+        {
+            return {vk::SharingMode::eConcurrent, 2u, properties.indices.data()};
+        }
+    }
+
+    void vulkan::create_image_views()
+    {
+        log.debug("creating vulkan image views");
+
+        m_image_views.resize(m_images.size());
+
+        for (auto [image, image_view] : detail::zip(m_images, m_image_views))
+        {
+            vk::ImageViewCreateInfo info =
+              vk::ImageViewCreateInfo()
+                .setImage(image)
+                .setViewType(vk::ImageViewType::e2D)
+                .setFormat(m_format)
+                .setComponents(vk::ComponentMapping())
+                .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+
+            image_view = m_device.createImageView(info);
+        }
+
+        log.debug("successfully created vulkan image views");
+    }
+
+    void vulkan::create_render_pass()
+    {
+        log.debug("creating vulkan render pass");
+
+        std::vector<vk::AttachmentDescription> color_attachments = {
+          vk::AttachmentDescription()
+            .setFlags(vk::AttachmentDescriptionFlags())
+            .setFormat(m_format)
+            .setSamples(vk::SampleCountFlagBits::e1)
+            .setLoadOp(vk::AttachmentLoadOp::eClear)
+            .setStoreOp(vk::AttachmentStoreOp::eStore)
+            .setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+            .setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+            .setInitialLayout(vk::ImageLayout::eUndefined)
+            .setFinalLayout(vk::ImageLayout::ePresentSrcKHR)};
+
+        std::vector<vk::AttachmentReference> color_attachments_refs = {
+          vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal)};
+
+        std::vector<vk::SubpassDescription> subpasses_descriptions = {
+          vk::SubpassDescription()
+            .setFlags(vk::SubpassDescriptionFlags())
+            .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+            .setInputAttachmentCount(0)
+            .setPInputAttachments(nullptr)
+            .setColorAttachmentCount(color_attachments_refs.size())
+            .setPColorAttachments(color_attachments_refs.data())
+            .setPResolveAttachments(nullptr)
+            .setPDepthStencilAttachment(nullptr)
+            .setPreserveAttachmentCount(0)
+            .setPResolveAttachments(nullptr)};
+
+        std::vector<vk::SubpassDependency> subpasses_dependencies = {
+          vk::SubpassDependency()
+            .setDependencyFlags(vk::DependencyFlags())
+            .setSrcSubpass(VK_SUBPASS_EXTERNAL)
+            .setDstSubpass(0)
+            .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+            .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+            .setSrcAccessMask(static_cast<vk::AccessFlagBits>(0))
+            .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+
+        };
+
+        vk::RenderPassCreateInfo info = vk::RenderPassCreateInfo()
+                                          .setFlags(vk::RenderPassCreateFlags())
+                                          .setAttachmentCount(color_attachments.size())
+                                          .setPAttachments(color_attachments.data())
+                                          .setSubpassCount(subpasses_descriptions.size())
+                                          .setPSubpasses(subpasses_descriptions.data())
+                                          .setDependencyCount(subpasses_dependencies.size())
+                                          .setPDependencies(subpasses_dependencies.data());
+
+        m_render_pass = m_device.createRenderPass(info);
+
+        log.debug("successfully created vulkan render pass");
     }
 
     const char* suitable_physical_device_not_found_exception::what() const noexcept

@@ -34,6 +34,13 @@ namespace caldera
     [[nodiscard]] glfw::glfw_pointer glfw::handle() { return m_window; }
     [[nodiscard]] glfw::glfw_pointer glfw::handle() const { return m_window; }
 
+    abacus::matrix<unsigned int, 1, 2> glfw::framebuffer()
+    {
+        int x, y;
+        glfwGetFramebufferSize(m_window, &x, &y);
+        return {x, y};
+    }
+
     glfw& glfw::controller(glfw_pointer p_window)
     {
         return *reinterpret_cast<glfw*>(glfwGetWindowUserPointer(p_window));

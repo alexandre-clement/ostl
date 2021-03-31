@@ -5,6 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <abacus/abacus.hpp>
 #include <glass/glass.hpp>
 
 #include "glfw_shell.hpp"
@@ -32,6 +33,7 @@ namespace caldera
         [[nodiscard]] glfw_pointer handle() const;
 
     private:
+        [[nodiscard]] abacus::matrix<unsigned int, 1, 2> framebuffer();
         glfw_pointer m_window;
         std::string m_title;
 
