@@ -22,6 +22,7 @@ find_package(Vulkan REQUIRED FATAL_ERROR)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(glslang CONFIG REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 

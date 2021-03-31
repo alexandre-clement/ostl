@@ -3,8 +3,119 @@
 #include <algorithm>
 #include <set>
 
+#include <SPIRV/GlslangToSpv.h>
+
+#include <glslang/Include/ResourceLimits.h>
+
 namespace caldera
 {
+    const TBuiltInResource DefaultTBuiltInResource = {
+      /* .MaxLights = */ 32,
+      /* .MaxClipPlanes = */ 6,
+      /* .MaxTextureUnits = */ 32,
+      /* .MaxTextureCoords = */ 32,
+      /* .MaxVertexAttribs = */ 64,
+      /* .MaxVertexUniformComponents = */ 4096,
+      /* .MaxVaryingFloats = */ 64,
+      /* .MaxVertexTextureImageUnits = */ 32,
+      /* .MaxCombinedTextureImageUnits = */ 80,
+      /* .MaxTextureImageUnits = */ 32,
+      /* .MaxFragmentUniformComponents = */ 4096,
+      /* .MaxDrawBuffers = */ 32,
+      /* .MaxVertexUniformVectors = */ 128,
+      /* .MaxVaryingVectors = */ 8,
+      /* .MaxFragmentUniformVectors = */ 16,
+      /* .MaxVertexOutputVectors = */ 16,
+      /* .MaxFragmentInputVectors = */ 15,
+      /* .MinProgramTexelOffset = */ -8,
+      /* .MaxProgramTexelOffset = */ 7,
+      /* .MaxClipDistances = */ 8,
+      /* .MaxComputeWorkGroupCountX = */ 65535,
+      /* .MaxComputeWorkGroupCountY = */ 65535,
+      /* .MaxComputeWorkGroupCountZ = */ 65535,
+      /* .MaxComputeWorkGroupSizeX = */ 1024,
+      /* .MaxComputeWorkGroupSizeY = */ 1024,
+      /* .MaxComputeWorkGroupSizeZ = */ 64,
+      /* .MaxComputeUniformComponents = */ 1024,
+      /* .MaxComputeTextureImageUnits = */ 16,
+      /* .MaxComputeImageUniforms = */ 8,
+      /* .MaxComputeAtomicCounters = */ 8,
+      /* .MaxComputeAtomicCounterBuffers = */ 1,
+      /* .MaxVaryingComponents = */ 60,
+      /* .MaxVertexOutputComponents = */ 64,
+      /* .MaxGeometryInputComponents = */ 64,
+      /* .MaxGeometryOutputComponents = */ 128,
+      /* .MaxFragmentInputComponents = */ 128,
+      /* .MaxImageUnits = */ 8,
+      /* .MaxCombinedImageUnitsAndFragmentOutputs = */ 8,
+      /* .MaxCombinedShaderOutputResources = */ 8,
+      /* .MaxImageSamples = */ 0,
+      /* .MaxVertexImageUniforms = */ 0,
+      /* .MaxTessControlImageUniforms = */ 0,
+      /* .MaxTessEvaluationImageUniforms = */ 0,
+      /* .MaxGeometryImageUniforms = */ 0,
+      /* .MaxFragmentImageUniforms = */ 8,
+      /* .MaxCombinedImageUniforms = */ 8,
+      /* .MaxGeometryTextureImageUnits = */ 16,
+      /* .MaxGeometryOutputVertices = */ 256,
+      /* .MaxGeometryTotalOutputComponents = */ 1024,
+      /* .MaxGeometryUniformComponents = */ 1024,
+      /* .MaxGeometryVaryingComponents = */ 64,
+      /* .MaxTessControlInputComponents = */ 128,
+      /* .MaxTessControlOutputComponents = */ 128,
+      /* .MaxTessControlTextureImageUnits = */ 16,
+      /* .MaxTessControlUniformComponents = */ 1024,
+      /* .MaxTessControlTotalOutputComponents = */ 4096,
+      /* .MaxTessEvaluationInputComponents = */ 128,
+      /* .MaxTessEvaluationOutputComponents = */ 128,
+      /* .MaxTessEvaluationTextureImageUnits = */ 16,
+      /* .MaxTessEvaluationUniformComponents = */ 1024,
+      /* .MaxTessPatchComponents = */ 120,
+      /* .MaxPatchVertices = */ 32,
+      /* .MaxTessGenLevel = */ 64,
+      /* .MaxViewports = */ 16,
+      /* .MaxVertexAtomicCounters = */ 0,
+      /* .MaxTessControlAtomicCounters = */ 0,
+      /* .MaxTessEvaluationAtomicCounters = */ 0,
+      /* .MaxGeometryAtomicCounters = */ 0,
+      /* .MaxFragmentAtomicCounters = */ 8,
+      /* .MaxCombinedAtomicCounters = */ 8,
+      /* .MaxAtomicCounterBindings = */ 1,
+      /* .MaxVertexAtomicCounterBuffers = */ 0,
+      /* .MaxTessControlAtomicCounterBuffers = */ 0,
+      /* .MaxTessEvaluationAtomicCounterBuffers = */ 0,
+      /* .MaxGeometryAtomicCounterBuffers = */ 0,
+      /* .MaxFragmentAtomicCounterBuffers = */ 1,
+      /* .MaxCombinedAtomicCounterBuffers = */ 1,
+      /* .MaxAtomicCounterBufferSize = */ 16384,
+      /* .MaxTransformFeedbackBuffers = */ 4,
+      /* .MaxTransformFeedbackInterleavedComponents = */ 64,
+      /* .MaxCullDistances = */ 8,
+      /* .MaxCombinedClipAndCullDistances = */ 8,
+      /* .MaxSamples = */ 4,
+      /* .maxMeshOutputVerticesNV = */ 256,
+      /* .maxMeshOutputPrimitivesNV = */ 512,
+      /* .maxMeshWorkGroupSizeX_NV = */ 32,
+      /* .maxMeshWorkGroupSizeY_NV = */ 1,
+      /* .maxMeshWorkGroupSizeZ_NV = */ 1,
+      /* .maxTaskWorkGroupSizeX_NV = */ 32,
+      /* .maxTaskWorkGroupSizeY_NV = */ 1,
+      /* .maxTaskWorkGroupSizeZ_NV = */ 1,
+      /* .maxMeshViewCountNV = */ 4,
+
+      /* .limits = */
+      {
+        /* .nonInductiveForLoops = */ 1,
+        /* .whileLoops = */ 1,
+        /* .doWhileLoops = */ 1,
+        /* .generalUniformIndexing = */ 1,
+        /* .generalAttributeMatrixVectorIndexing = */ 1,
+        /* .generalVaryingIndexing = */ 1,
+        /* .generalSamplerIndexing = */ 1,
+        /* .generalVariableIndexing = */ 1,
+        /* .generalConstantMatrixVectorIndexing = */ 1,
+      }};
+
     bool queue_family_indices::is_complete() const { return graphics_family.has_value() && present_family.has_value(); }
 
     bool swap_chain_details::is_adequate() const { return !surface_formats.empty() && !present_modes.empty(); }
@@ -41,12 +152,36 @@ namespace caldera
         create_swap_chain();
         create_image_views();
         create_render_pass();
+        create_framebuffers();
+        create_descriptor_pool();
+        create_uniform_buffer();
+        create_descriptor_set_layout();
+        create_descriptor_sets();
+        create_pipeline_layout();
+        create_graphic_pipeline();
     }
 
     vulkan::~vulkan()
     {
         log.trace("destroying vulkan instance");
 
+        for (auto stage : m_stages)
+        {
+            m_device.destroyShaderModule(stage.module);
+        }
+        m_device.destroyPipeline(m_pipeline);
+        m_device.destroyPipelineLayout(m_layout);
+        m_device.destroyDescriptorSetLayout(m_descriptor_set_layout);
+        for (auto [buffer, memory] : detail::zip(m_buffers, m_memory))
+        {
+            m_device.destroyBuffer(buffer);
+            m_device.freeMemory(memory);
+        }
+        m_device.destroyDescriptorPool(m_descriptor_pool);
+        for (auto& framebuffer : m_framebuffers)
+        {
+            m_device.destroyFramebuffer(framebuffer);
+        }
         m_device.destroyRenderPass(m_render_pass);
         for (auto& image_view : m_image_views)
         {
@@ -229,7 +364,7 @@ namespace caldera
         for (std::uint32_t index : queues_indices)
         {
             queue_informations.push_back(
-              vk::DeviceQueueCreateInfo().setQueueFamilyIndex(index).setQueueCount(1).setPQueuePriorities(&priority));
+              vk::DeviceQueueCreateInfo().setQueueFamilyIndex(index).setQueueCount(1u).setPQueuePriorities(&priority));
         }
         log.debug("{} vulkan extensions will be loaded:", properties.extensions.size());
         for (const auto& extension : properties.extensions)
@@ -407,26 +542,26 @@ namespace caldera
             .setFinalLayout(vk::ImageLayout::ePresentSrcKHR)};
 
         std::vector<vk::AttachmentReference> color_attachments_refs = {
-          vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal)};
+          vk::AttachmentReference().setAttachment(0u).setLayout(vk::ImageLayout::eColorAttachmentOptimal)};
 
         std::vector<vk::SubpassDescription> subpasses_descriptions = {
           vk::SubpassDescription()
             .setFlags(vk::SubpassDescriptionFlags())
             .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-            .setInputAttachmentCount(0)
+            .setInputAttachmentCount(0u)
             .setPInputAttachments(nullptr)
             .setColorAttachmentCount(color_attachments_refs.size())
             .setPColorAttachments(color_attachments_refs.data())
             .setPResolveAttachments(nullptr)
             .setPDepthStencilAttachment(nullptr)
-            .setPreserveAttachmentCount(0)
+            .setPreserveAttachmentCount(0u)
             .setPResolveAttachments(nullptr)};
 
         std::vector<vk::SubpassDependency> subpasses_dependencies = {
           vk::SubpassDependency()
             .setDependencyFlags(vk::DependencyFlags())
             .setSrcSubpass(VK_SUBPASS_EXTERNAL)
-            .setDstSubpass(0)
+            .setDstSubpass(0u)
             .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
             .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
             .setSrcAccessMask(static_cast<vk::AccessFlagBits>(0))
@@ -448,8 +583,351 @@ namespace caldera
         log.debug("successfully created vulkan render pass");
     }
 
+    void vulkan::create_framebuffers()
+    {
+        log.debug("creating vulkan framebuffer");
+
+        m_framebuffers.resize(m_image_views.size());
+
+        for (auto [framebuffer, image_view] : detail::zip(m_framebuffers, m_image_views))
+        {
+            vk::ImageView attachments[] = {image_view};
+            vk::FramebufferCreateInfo info = vk::FramebufferCreateInfo()
+                                               .setRenderPass(m_render_pass)
+                                               .setAttachmentCount(1u)
+                                               .setPAttachments(attachments)
+                                               .setWidth(m_extent.width)
+                                               .setHeight(m_extent.height)
+                                               .setLayers(1u);
+
+            framebuffer = m_device.createFramebuffer(info);
+        }
+
+        log.debug("successfully created vulkan framebuffer");
+    }
+
+    void vulkan::create_descriptor_pool()
+    {
+        std::vector<vk::DescriptorPoolSize> pool_sizes = {
+          vk::DescriptorPoolSize().setType(vk::DescriptorType::eUniformBuffer).setDescriptorCount(m_images.size())};
+
+        vk::DescriptorPoolCreateInfo info = vk::DescriptorPoolCreateInfo()
+                                              .setMaxSets(m_images.size())
+                                              .setPoolSizeCount(pool_sizes.size())
+                                              .setPPoolSizes(pool_sizes.data());
+
+        m_descriptor_pool = m_device.createDescriptorPool(info);
+    }
+
+    void vulkan::create_uniform_buffer()
+    {
+        m_buffers.resize(m_images.size());
+        m_memory.resize(m_images.size());
+
+        for (auto [buffer, memory] : detail::zip(m_buffers, m_memory))
+        {
+            vk::BufferCreateInfo buffer_info =
+              vk::BufferCreateInfo().setSize(m_buffer_size).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
+
+            {
+                buffer = m_device.createBuffer(buffer_info);
+            }
+
+            auto requirements = m_device.getBufferMemoryRequirements(buffer);
+
+            vk::MemoryAllocateInfo memory_info =
+              vk::MemoryAllocateInfo()
+                .setAllocationSize(requirements.size)
+                .setMemoryTypeIndex(find_memory_type(
+                  requirements.memoryTypeBits,
+                  vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
+
+            memory = m_device.allocateMemory(memory_info);
+
+            m_device.bindBufferMemory(buffer, memory, 0ul);
+        }
+    }
+
+    std::uint32_t vulkan::find_memory_type(std::uint32_t type, vk::MemoryPropertyFlags properties) const
+    {
+        auto gpu_memory_properties = m_physical_device.getMemoryProperties();
+        for (std::uint32_t i = 0u; i < gpu_memory_properties.memoryTypeCount; i++)
+        {
+            if ((type & (1u << i)) && (gpu_memory_properties.memoryTypes[i].propertyFlags & properties) == properties)
+            {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    void vulkan::create_descriptor_set_layout()
+    {
+        std::vector<vk::DescriptorSetLayoutBinding> bindings = {vk::DescriptorSetLayoutBinding()
+                                                                  .setBinding(0u)
+                                                                  .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+                                                                  .setDescriptorCount(1u)
+                                                                  .setStageFlags(vk::ShaderStageFlagBits::eFragment)};
+
+        vk::DescriptorSetLayoutCreateInfo layout_info =
+          vk::DescriptorSetLayoutCreateInfo().setBindingCount(bindings.size()).setPBindings(bindings.data());
+
+        m_descriptor_set_layout = m_device.createDescriptorSetLayout(layout_info);
+    }
+
+    void vulkan::create_descriptor_sets()
+    {
+        std::vector<vk::DescriptorSetLayout> layouts(m_images.size(), m_descriptor_set_layout);
+
+        vk::DescriptorSetAllocateInfo allocate_info = vk::DescriptorSetAllocateInfo()
+                                                        .setDescriptorPool(m_descriptor_pool)
+                                                        .setDescriptorSetCount(layouts.size())
+                                                        .setPSetLayouts(layouts.data());
+
+        m_descriptor_sets = m_device.allocateDescriptorSets(allocate_info);
+
+        std::vector<vk::WriteDescriptorSet> descriptor_writes(m_descriptor_sets.size());
+
+        for (auto [buffer, descriptor_set, writer] : detail::zip(m_buffers, m_descriptor_sets, descriptor_writes))
+        {
+            vk::DescriptorBufferInfo buffer_info =
+              vk::DescriptorBufferInfo().setBuffer(buffer).setOffset(0ul).setRange(m_buffer_size);
+
+            writer.setDstSet(descriptor_set)
+              .setDstBinding(0u)
+              .setDstArrayElement(0u)
+              .setDescriptorCount(1u)
+              .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+              .setPImageInfo(nullptr)
+              .setPBufferInfo(&buffer_info)
+              .setPTexelBufferView(nullptr);
+        }
+
+        m_device.updateDescriptorSets(descriptor_writes, nullptr);
+    }
+
+    void vulkan::create_pipeline_layout()
+    {
+        log.debug("creating vulkan pipeline layout");
+
+        vk::PipelineLayoutCreateInfo info = vk::PipelineLayoutCreateInfo()
+                                              .setFlags(vk::PipelineLayoutCreateFlags())
+                                              .setPPushConstantRanges(0)
+                                              .setPPushConstantRanges(nullptr)
+                                              .setSetLayoutCount(1u)
+                                              .setPSetLayouts(&m_descriptor_set_layout);
+
+        m_layout = m_device.createPipelineLayout(info);
+
+        log.debug("successfully created vulkan pipeline layout");
+    }
+
+    void vulkan::create_graphic_pipeline()
+    {
+        log.debug("creating vulkan graphics pipeline");
+
+        glslang::InitializeProcess();
+        vk::ShaderModule vertexShaderModule = create_shader_module(vk::ShaderStageFlagBits::eVertex, R"(
+			#version 450
+
+			void main()
+			{
+				vec2 circumscribed_triangle = 4. * vec2(gl_VertexIndex & 1, (gl_VertexIndex >> 1) & 1) - 1.;
+				gl_Position = vec4(circumscribed_triangle, 0.0, 1.0);
+			}
+			)");
+        vk::ShaderModule fragmentShaderModule = create_shader_module(vk::ShaderStageFlagBits::eFragment, R"(
+			#version 450
+
+			layout(location = 0) out vec4 frag_color;
+
+			layout(binding = 0) uniform uniform_variables
+			{
+				float time;
+				vec2 resolution;
+			} uv;
+
+			void main()
+			{
+				frag_color = vec4(vec3(0.), 1.);
+			}
+			)");
+        glslang::FinalizeProcess();
+
+        m_stages = {
+          vk::PipelineShaderStageCreateInfo(
+            vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertexShaderModule, "main"),
+          vk::PipelineShaderStageCreateInfo(
+            vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragmentShaderModule, "main")};
+
+        vk::PipelineVertexInputStateCreateInfo vertex_input = vk::PipelineVertexInputStateCreateInfo()
+                                                                .setVertexBindingDescriptionCount(0u)
+                                                                .setVertexAttributeDescriptionCount(0u);
+
+        vk::PipelineInputAssemblyStateCreateInfo assembly = vk::PipelineInputAssemblyStateCreateInfo()
+                                                              .setTopology(vk::PrimitiveTopology::eTriangleList)
+                                                              .setPrimitiveRestartEnable(VK_FALSE);
+
+        vk::Viewport viewport = vk::Viewport(0.0f, 0.0f, m_extent.width, m_extent.height, 0, 1.0f);
+        vk::Rect2D scissors({0, 0}, m_extent);
+
+        vk::PipelineViewportStateCreateInfo viewport_state_info = vk::PipelineViewportStateCreateInfo()
+                                                                    .setViewportCount(1u)
+                                                                    .setPViewports(&viewport)
+                                                                    .setScissorCount(1u)
+                                                                    .setPScissors(&scissors);
+
+        vk::PipelineRasterizationStateCreateInfo rasterizer = vk::PipelineRasterizationStateCreateInfo()
+                                                                .setFlags(vk::PipelineRasterizationStateCreateFlags())
+                                                                .setDepthBiasClamp(VK_FALSE)
+                                                                .setRasterizerDiscardEnable(VK_FALSE)
+                                                                .setPolygonMode(vk::PolygonMode::eFill)
+                                                                .setCullMode(vk::CullModeFlagBits::eBack)
+                                                                .setFrontFace(vk::FrontFace::eClockwise)
+                                                                .setDepthBiasEnable(VK_FALSE)
+                                                                .setDepthBiasConstantFactor(.0f)
+                                                                .setDepthBiasClamp(.0f)
+                                                                .setDepthBiasSlopeFactor(.0f)
+                                                                .setLineWidth(1.f);
+
+        vk::PipelineMultisampleStateCreateInfo multisampling =
+          vk::PipelineMultisampleStateCreateInfo().setSampleShadingEnable(VK_FALSE).setRasterizationSamples(
+            vk::SampleCountFlagBits::e1);
+
+        std::vector<vk::PipelineColorBlendAttachmentState> color_blend_attachments = {
+          vk::PipelineColorBlendAttachmentState().setBlendEnable(VK_FALSE).setColorWriteMask(vk::ColorComponentFlags(
+            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB |
+            vk::ColorComponentFlagBits::eA))};
+
+        vk::PipelineColorBlendStateCreateInfo color_blend_info = vk::PipelineColorBlendStateCreateInfo()
+                                                                   .setFlags(vk::PipelineColorBlendStateCreateFlags())
+                                                                   .setLogicOpEnable(VK_FALSE)
+                                                                   .setLogicOp(vk::LogicOp::eCopy)
+                                                                   .setAttachmentCount(color_blend_attachments.size())
+                                                                   .setPAttachments(color_blend_attachments.data())
+                                                                   .setBlendConstants({0.0f, 0.0f, 0.0f, 0.0f});
+
+        std::vector<vk::DynamicState> dynamic_states = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+
+        vk::PipelineDynamicStateCreateInfo dynamic_states_info = vk::PipelineDynamicStateCreateInfo()
+                                                                   .setFlags(vk::PipelineDynamicStateCreateFlags())
+                                                                   .setDynamicStateCount(dynamic_states.size())
+                                                                   .setPDynamicStates(dynamic_states.data());
+
+        vk::GraphicsPipelineCreateInfo info = vk::GraphicsPipelineCreateInfo()
+                                                .setStageCount(m_stages.size())
+                                                .setPStages(m_stages.data())
+                                                .setPVertexInputState(&vertex_input)
+                                                .setPInputAssemblyState(&assembly)
+                                                .setPViewportState(&viewport_state_info)
+                                                .setPRasterizationState(&rasterizer)
+                                                .setPMultisampleState(&multisampling)
+                                                .setPDepthStencilState(nullptr)
+                                                .setPColorBlendState(&color_blend_info)
+                                                .setPDynamicState(nullptr)
+                                                .setLayout(m_layout)
+                                                .setRenderPass(m_render_pass)
+                                                .setSubpass(0u)
+                                                .setBasePipelineHandle(nullptr)
+                                                .setBasePipelineIndex(-1);
+
+        auto [result, pipeline] = m_device.createGraphicsPipeline(m_cache, info);
+        if (result != vk::Result::eSuccess)
+        {
+            throw graphics_pipeline_creation_exception();
+        }
+        m_pipeline = std::move(pipeline);
+
+        log.debug("successfully created vulkan graphics pipeline");
+    }
+
+    EShLanguage vk_shader_stage_to_glslang(vk::ShaderStageFlagBits stage)
+    {
+        switch (stage)
+        {
+            case vk::ShaderStageFlagBits::eVertex:
+                return EShLangVertex;
+            case vk::ShaderStageFlagBits::eTessellationControl:
+                return EShLangTessControl;
+            case vk::ShaderStageFlagBits::eTessellationEvaluation:
+                return EShLangTessEvaluation;
+            case vk::ShaderStageFlagBits::eGeometry:
+                return EShLangGeometry;
+            case vk::ShaderStageFlagBits::eFragment:
+                return EShLangFragment;
+            case vk::ShaderStageFlagBits::eCompute:
+                return EShLangCompute;
+            case vk::ShaderStageFlagBits::eRaygenNV:
+                return EShLangRayGenNV;
+            case vk::ShaderStageFlagBits::eAnyHitNV:
+                return EShLangAnyHitNV;
+            case vk::ShaderStageFlagBits::eClosestHitNV:
+                return EShLangClosestHitNV;
+            case vk::ShaderStageFlagBits::eMissNV:
+                return EShLangMissNV;
+            case vk::ShaderStageFlagBits::eIntersectionNV:
+                return EShLangIntersectNV;
+            case vk::ShaderStageFlagBits::eCallableNV:
+                return EShLangCallableNV;
+            case vk::ShaderStageFlagBits::eTaskNV:
+                return EShLangTaskNV;
+            case vk::ShaderStageFlagBits::eMeshNV:
+                return EShLangMeshNV;
+            default:
+                return EShLangVertex;
+        }
+    }
+
+    vk::ShaderModule vulkan::create_shader_module(vk::ShaderStageFlagBits type, const std::string& glsl) const
+    {
+        std::vector<unsigned int> spir_v;
+        EShLanguage stage = vk_shader_stage_to_glslang(type);
+
+        const char* shader_strings[1];
+        shader_strings[0] = glsl.data();
+
+        glslang::TShader shader(stage);
+        shader.setStrings(shader_strings, 1);
+
+        int input_version = 450;
+        glslang::EShTargetClientVersion client_version = glslang::EShTargetVulkan_1_0;
+        glslang::EShTargetLanguageVersion target_version = glslang::EShTargetSpv_1_0;
+
+        shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, input_version);
+        shader.setEnvClient(glslang::EShClientVulkan, client_version);
+        shader.setEnvTarget(glslang::EShTargetSpv, target_version);
+        EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+
+        if (!shader.parse(&DefaultTBuiltInResource, 100, false, messages))
+        {
+            log.error("{}", shader.getInfoLog());
+            log.error("{}", shader.getInfoDebugLog());
+            return {};
+        }
+
+        glslang::TProgram program;
+        program.addShader(&shader);
+
+        if (!program.link(messages))
+        {
+            log.error("{}", shader.getInfoLog());
+            log.error("{}", shader.getInfoDebugLog());
+            return {};
+        }
+
+        spv::SpvBuildLogger spv_logger;
+        glslang::SpvOptions spv_options;
+        glslang::GlslangToSpv(*program.getIntermediate(stage), spir_v, &spv_logger, &spv_options);
+        return m_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), spir_v));
+    }
+
     const char* suitable_physical_device_not_found_exception::what() const noexcept
     {
         return "failed to find a suitable GPU.";
+    }
+
+    const char* graphics_pipeline_creation_exception::what() const noexcept
+    {
+        return "failed to create the graphics pipeline.";
     }
 }  // namespace caldera

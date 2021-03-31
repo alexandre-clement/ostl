@@ -98,7 +98,7 @@ namespace caldera
         [[nodiscard]] std::vector<std::string> get_available_gpu_extensions(const vk::PhysicalDevice&) const;
         [[nodiscard]] std::vector<std::string> get_required_gpu_extensions() const;
         [[nodiscard]] swap_chain_details query_swap_chain_support(const vk::PhysicalDevice&) const;
-        physical_device_properties gpu_properties() const;
+        [[nodiscard]] physical_device_properties gpu_properties() const;
         void create_logical_device();
         void create_command_pool();
         void create_swap_chain();
@@ -108,6 +108,15 @@ namespace caldera
         [[nodiscard]] queue_sharing_mode select_sharing_mode(const physical_device_properties&) const;
         void create_image_views();
         void create_render_pass();
+        void create_framebuffers();
+        void create_descriptor_pool();
+        void create_uniform_buffer();
+        [[nodiscard]] std::uint32_t find_memory_type(std::uint32_t, vk::MemoryPropertyFlags) const;
+        void create_descriptor_set_layout();
+        void create_descriptor_sets();
+        void create_pipeline_layout();
+        void create_graphic_pipeline();
+        [[nodiscard]] vk::ShaderModule create_shader_module(vk::ShaderStageFlagBits, const std::string&) const;
 
         configuration m_configuration;
         debugger m_debugger;
@@ -127,6 +136,17 @@ namespace caldera
         vk::Extent2D m_extent;
         std::vector<vk::ImageView> m_image_views;
         vk::RenderPass m_render_pass;
+        std::vector<vk::Framebuffer> m_framebuffers;
+        vk::DescriptorPool m_descriptor_pool;
+        std::vector<vk::Buffer> m_buffers;
+        std::vector<vk::DeviceMemory> m_memory;
+        vk::DeviceSize m_buffer_size = 256u;
+        vk::DescriptorSetLayout m_descriptor_set_layout;
+        std::vector<vk::DescriptorSet> m_descriptor_sets;
+        vk::PipelineLayout m_layout;
+        std::vector<vk::PipelineShaderStageCreateInfo> m_stages;
+        vk::Pipeline m_pipeline;
+        vk::PipelineCache m_cache;
     };
 
     class caldera_exception : public std::exception
@@ -139,4 +159,9 @@ namespace caldera
         const char* what() const noexcept override;
     };
 
+    class graphics_pipeline_creation_exception : public caldera_exception
+    {
+    public:
+        const char* what() const noexcept override;
+    };
 }  // namespace caldera
