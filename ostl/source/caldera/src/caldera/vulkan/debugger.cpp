@@ -5,9 +5,9 @@ namespace caldera
 {
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
       VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-      VkDebugUtilsMessageTypeFlagsEXT messageType,
+      VkDebugUtilsMessageTypeFlagsEXT,
       const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-      void* pUserData)
+      void*)
     {
         static detail::logger logger = detail::create_class_logger("caldera::debugger");
         switch (messageSeverity)

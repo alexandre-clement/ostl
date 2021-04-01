@@ -2,9 +2,9 @@
 
 #include <iostream>
 #include <string_view>
+
 namespace detail
 {
-
     template<class T>
     constexpr std::string_view type_name()
     {

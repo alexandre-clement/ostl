@@ -45,7 +45,8 @@ RUN ./vcpkg/vcpkg install \
     fmt \
     spdlog \
     gtest \
-    glfw3
+    glfw3 \
+    glslang
 
 ARG CC=gcc
 ARG CXX=g++

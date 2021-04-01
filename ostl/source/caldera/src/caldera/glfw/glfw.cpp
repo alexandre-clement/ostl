@@ -46,7 +46,7 @@ namespace caldera
         return *reinterpret_cast<glfw*>(glfwGetWindowUserPointer(p_window));
     }
 
-    void glfw::key_callback(glfw_pointer p_window, int key, int scancode, int action, int mods)
+    void glfw::key_callback(glfw_pointer p_window, int key, int, int action, int)
     {
         glfw& self = controller(p_window);
         glass::keyboard::key k = glfw_key_convert(key);

@@ -15,6 +15,6 @@ namespace detail
         {
             result.push_back(std::move(f(input_value)));
         }
-        return std::move(result);
+        return result;
     }
 }  // namespace detail

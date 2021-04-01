@@ -6,7 +6,7 @@ namespace caldera
 {
     caldera::caldera(std::string p_title)
         : glfw(p_title)
-        , m_renderer({p_title, 20210328, debug::none, required_extensions(), create_surface_maker()})
+        , m_renderer({p_title, 20210328, debug::none, required_extensions(), create_surface_maker(), framebuffer()})
     {
     }
 
@@ -29,7 +29,7 @@ namespace caldera
         return [&](vk::Instance p_instance) -> vk::SurfaceKHR {
             VkSurfaceKHR surface;
             glfwCreateWindowSurface(p_instance, handle(), nullptr, &surface);
-            return std::move(surface);
+            return surface;
         };
     }
 }  // namespace caldera

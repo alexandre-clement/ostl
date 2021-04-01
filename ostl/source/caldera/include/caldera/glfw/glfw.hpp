@@ -32,8 +32,9 @@ namespace caldera
         [[nodiscard]] glfw_pointer handle();
         [[nodiscard]] glfw_pointer handle() const;
 
-    private:
         [[nodiscard]] abacus::matrix<unsigned int, 1, 2> framebuffer();
+
+    private:
         glfw_pointer m_window;
         std::string m_title;
 

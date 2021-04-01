@@ -795,9 +795,9 @@ namespace caldera
             vk::SampleCountFlagBits::e1);
 
         std::vector<vk::PipelineColorBlendAttachmentState> color_blend_attachments = {
-          vk::PipelineColorBlendAttachmentState().setBlendEnable(VK_FALSE).setColorWriteMask(vk::ColorComponentFlags(
+          vk::PipelineColorBlendAttachmentState().setBlendEnable(VK_FALSE).setColorWriteMask(
             vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB |
-            vk::ColorComponentFlagBits::eA))};
+            vk::ColorComponentFlagBits::eA)};
 
         vk::PipelineColorBlendStateCreateInfo color_blend_info = vk::PipelineColorBlendStateCreateInfo()
                                                                    .setFlags(vk::PipelineColorBlendStateCreateFlags())
@@ -824,7 +824,7 @@ namespace caldera
                                                 .setPMultisampleState(&multisampling)
                                                 .setPDepthStencilState(nullptr)
                                                 .setPColorBlendState(&color_blend_info)
-                                                .setPDynamicState(nullptr)
+                                                .setPDynamicState(&dynamic_states_info)
                                                 .setLayout(m_layout)
                                                 .setRenderPass(m_render_pass)
                                                 .setSubpass(0u)
@@ -896,7 +896,7 @@ namespace caldera
         shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, input_version);
         shader.setEnvClient(glslang::EShClientVulkan, client_version);
         shader.setEnvTarget(glslang::EShTargetSpv, target_version);
-        EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+        EShMessages messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
 
         if (!shader.parse(&DefaultTBuiltInResource, 100, false, messages))
         {

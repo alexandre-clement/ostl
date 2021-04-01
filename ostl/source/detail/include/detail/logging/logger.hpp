@@ -16,5 +16,5 @@ namespace detail
 
     using spdlog::set_level;
 
-    logger create_class_logger(std::string);
+    logger& create_class_logger(std::string);
 }  // namespace detail

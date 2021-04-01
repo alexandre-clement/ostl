@@ -14,6 +14,6 @@ namespace detail
         loggable() : log(create_class_logger(std::string(type_name<derived>()))) {}
         virtual ~loggable() = default;
 
-        mutable logger log;
+        logger& log;
     };
 }  // namespace detail
