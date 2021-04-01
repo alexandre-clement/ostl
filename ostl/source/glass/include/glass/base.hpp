@@ -24,6 +24,8 @@ namespace glass
         virtual void poll_events() = 0;
         virtual void draw() = 0;
 
+        virtual void render() = 0;
+
         void press(keyboard::key);
 
         handler event_handler;

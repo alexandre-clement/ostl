@@ -159,17 +159,29 @@ namespace caldera
         create_descriptor_sets();
         create_pipeline_layout();
         create_graphic_pipeline();
+        create_command_buffers();
+        create_semaphores();
+        create_fences();
     }
 
     vulkan::~vulkan()
     {
-        log.trace("destroying vulkan instance");
+        log.info("destroying vulkan");
 
-        for (auto stage : m_stages)
+        m_present_queue.waitIdle();
+        for (auto [image_available, render_finished, in_flight] :
+             detail::zip(m_image_available_semaphores, m_render_finished_semaphores, m_in_flight_fences))
+        {
+            m_device.destroySemaphore(image_available);
+            m_device.destroySemaphore(render_finished);
+            m_device.destroyFence(in_flight);
+        }
+        m_device.freeCommandBuffers(m_command_pool, m_command_buffers);
+        m_device.destroyPipeline(m_pipeline);
+        for (const auto& stage : m_stages)
         {
             m_device.destroyShaderModule(stage.module);
         }
-        m_device.destroyPipeline(m_pipeline);
         m_device.destroyPipelineLayout(m_layout);
         m_device.destroyDescriptorSetLayout(m_descriptor_set_layout);
         for (auto [buffer, memory] : detail::zip(m_buffers, m_memory))
@@ -194,9 +206,65 @@ namespace caldera
         m_instance.destroy(nullptr);
     }
 
+    void vulkan::render()
+    {
+        auto result = m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX);
+
+        std::uint32_t image_index;
+
+        do
+        {
+            result = m_device.acquireNextImageKHR(
+              m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr, &image_index);
+
+            if (result == vk::Result::eErrorOutOfDateKHR)
+            {
+                // recreate image buffer
+            }
+        } while (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR);
+
+        if (m_images_in_flight.at(image_index))
+        {
+            result = m_device.waitForFences(m_images_in_flight.at(image_index), VK_TRUE, UINT64_MAX);
+        }
+
+        m_images_in_flight.at(image_index) = in_flight_fence();
+
+        // update uniform variables
+
+        vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        vk::SubmitInfo submit_info = vk::SubmitInfo()
+                                       .setWaitSemaphoreCount(1u)
+                                       .setPWaitSemaphores(&image_available_semaphore())
+                                       .setPWaitDstStageMask(&wait_dst_stage_mask)
+                                       .setCommandBufferCount(1u)
+                                       .setPCommandBuffers(&current_buffer(image_index))
+                                       .setSignalSemaphoreCount(1u)
+                                       .setPSignalSemaphores(&render_finished_semaphore());
+
+        m_device.resetFences(in_flight_fence());
+        m_graphics_queue.submit(submit_info, in_flight_fence());
+
+        vk::PresentInfoKHR present_info = vk::PresentInfoKHR()
+                                            .setWaitSemaphoreCount(1u)
+                                            .setPWaitSemaphores(&render_finished_semaphore())
+                                            .setSwapchainCount(1u)
+                                            .setPSwapchains(&m_swap_chain)
+                                            .setPImageIndices(&image_index)
+                                            .setPResults(nullptr);
+
+        result = m_present_queue.presentKHR(present_info);
+        if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+        {
+            // recreate image buffer
+        }
+
+        next_frame();
+    }
+
     void vulkan::create_instance()
     {
-        log.trace("creating vulkan instance");
+        log.debug("creating vulkan instance");
         log.info("instance information : [name : \"{}\", version : {}]", engine_name, engine_version);
 
         std::vector<c_str> extensions = m_configuration.required_extensions;
@@ -226,7 +294,7 @@ namespace caldera
 
         m_instance = vk::createInstance(instance_informations);
 
-        log.trace("successfully created vulkan instance");
+        log.debug("successfully created vulkan instance");
     }
 
     void vulkan::bind_surface() { m_surface = m_configuration.create_surface(m_instance); }
@@ -262,7 +330,7 @@ namespace caldera
 
     physical_device_evaluation vulkan::evaluate_physical_device_properties(const vk::PhysicalDevice& device) const
     {
-        log.trace("evaluate {}", device.getProperties().deviceName);
+        log.debug("evaluate {}", device.getProperties().deviceName);
         physical_device_evaluation evaluation;
         auto properties = device.getProperties();
         evaluation.is_discrete = properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
@@ -444,7 +512,7 @@ namespace caldera
         log.info("window size {}x{}", m_extent.width, m_extent.height);
         log.info("display format {}", vk::to_string(m_format));
 
-        log.trace("successfully created vulkan swap chain");
+        log.debug("successfully created vulkan swap chain");
     }
 
     vk::SurfaceFormatKHR
@@ -502,6 +570,8 @@ namespace caldera
             return {vk::SharingMode::eConcurrent, 2u, properties.indices.data()};
         }
     }
+
+    const vk::Rect2D vulkan::render_area() const { return vk::Rect2D({0, 0}, m_extent); }
 
     void vulkan::create_image_views()
     {
@@ -741,12 +811,6 @@ namespace caldera
 
             layout(location = 0) out vec4 frag_color;
 
-            layout(binding = 0) uniform uniform_variables
-            {
-                float time;
-                vec2 resolution;
-            } uv;
-
             void main()
             {
                 frag_color = vec4(vec3(0.), 1.);
@@ -769,7 +833,7 @@ namespace caldera
                                                               .setPrimitiveRestartEnable(VK_FALSE);
 
         vk::Viewport viewport = vk::Viewport(0.0f, 0.0f, m_extent.width, m_extent.height, 0, 1.0f);
-        vk::Rect2D scissors({0, 0}, m_extent);
+        vk::Rect2D scissors(render_area());
 
         vk::PipelineViewportStateCreateInfo viewport_state_info = vk::PipelineViewportStateCreateInfo()
                                                                     .setViewportCount(1u)
@@ -807,13 +871,6 @@ namespace caldera
                                                                    .setPAttachments(color_blend_attachments.data())
                                                                    .setBlendConstants({0.0f, 0.0f, 0.0f, 0.0f});
 
-        std::vector<vk::DynamicState> dynamic_states = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
-
-        vk::PipelineDynamicStateCreateInfo dynamic_states_info = vk::PipelineDynamicStateCreateInfo()
-                                                                   .setFlags(vk::PipelineDynamicStateCreateFlags())
-                                                                   .setDynamicStateCount(dynamic_states.size())
-                                                                   .setPDynamicStates(dynamic_states.data());
-
         vk::GraphicsPipelineCreateInfo info = vk::GraphicsPipelineCreateInfo()
                                                 .setStageCount(m_stages.size())
                                                 .setPStages(m_stages.data())
@@ -824,7 +881,7 @@ namespace caldera
                                                 .setPMultisampleState(&multisampling)
                                                 .setPDepthStencilState(nullptr)
                                                 .setPColorBlendState(&color_blend_info)
-                                                .setPDynamicState(&dynamic_states_info)
+                                                .setPDynamicState(nullptr)
                                                 .setLayout(m_layout)
                                                 .setRenderPass(m_render_pass)
                                                 .setSubpass(0u)
@@ -920,6 +977,84 @@ namespace caldera
         glslang::GlslangToSpv(*program.getIntermediate(stage), spir_v, &spv_logger, &spv_options);
         return m_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), spir_v));
     }
+
+    void vulkan::create_command_buffers()
+    {
+        log.debug("creating vulkan command buffer");
+
+        vk::CommandBufferAllocateInfo info = vk::CommandBufferAllocateInfo()
+                                               .setCommandPool(m_command_pool)
+                                               .setLevel(vk::CommandBufferLevel::ePrimary)
+                                               .setCommandBufferCount(m_framebuffers.size());
+
+        m_command_buffers = m_device.allocateCommandBuffers(info);
+
+        std::vector<vk::ClearValue> clear_colors = {vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f})};
+
+        for (auto [command_buffer, framebuffer, descriptor_set] :
+             detail::zip(m_command_buffers, m_framebuffers, m_descriptor_sets))
+        {
+            command_buffer.begin(vk::CommandBufferBeginInfo());
+            {
+                vk::RenderPassBeginInfo render_pass_info = vk::RenderPassBeginInfo()
+                                                             .setRenderPass(m_render_pass)
+                                                             .setFramebuffer(framebuffer)
+                                                             .setRenderArea(render_area())
+                                                             .setClearValueCount(clear_colors.size())
+                                                             .setPClearValues(clear_colors.data());
+
+                command_buffer.beginRenderPass(render_pass_info, vk::SubpassContents::eInline);
+                {
+                    command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
+                    command_buffer.bindDescriptorSets(
+                      vk::PipelineBindPoint::eGraphics, m_layout, 0, descriptor_set, nullptr);
+                    command_buffer.draw(3, 1, 0, 0);
+                }
+                command_buffer.endRenderPass();
+            }
+            command_buffer.end();
+        }
+
+        log.debug("successfully created vulkan command buffer");
+    }
+
+    vk::CommandBuffer& vulkan::current_buffer(std::uint32_t image_in_flight_index)
+    {
+        return m_command_buffers.at(image_in_flight_index);
+    }
+
+    void vulkan::create_semaphores()
+    {
+        log.debug("creating vulkan synchronizer");
+        m_number_of_frames_in_flight = 2;
+        m_image_available_semaphores.resize(m_number_of_frames_in_flight);
+        m_render_finished_semaphores.resize(m_number_of_frames_in_flight);
+        m_in_flight_fences.resize(m_number_of_frames_in_flight);
+        for (auto [image_available, render_finished, in_flight] :
+             detail::zip(m_image_available_semaphores, m_render_finished_semaphores, m_in_flight_fences))
+        {
+            image_available = m_device.createSemaphore(vk::SemaphoreCreateInfo());
+            render_finished = m_device.createSemaphore(vk::SemaphoreCreateInfo());
+            in_flight = m_device.createFence(vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled));
+        }
+        log.debug("successfully created vulkan synchronizer");
+    }
+
+    void vulkan::next_frame() { m_current_frame = (m_current_frame + 1) % m_number_of_frames_in_flight; }
+
+    const vk::Semaphore& vulkan::image_available_semaphore() const
+    {
+        return m_image_available_semaphores.at(m_current_frame);
+    }
+
+    const vk::Semaphore& vulkan::render_finished_semaphore() const
+    {
+        return m_render_finished_semaphores.at(m_current_frame);
+    }
+
+    const vk::Fence& vulkan::in_flight_fence() const { return m_in_flight_fences.at(m_current_frame); }
+
+    void vulkan::create_fences() { m_images_in_flight.resize(m_images.size(), nullptr); }
 
     const char* suitable_physical_device_not_found_exception::what() const noexcept
     {

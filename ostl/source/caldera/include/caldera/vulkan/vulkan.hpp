@@ -87,6 +87,8 @@ namespace caldera
         vulkan(configuration);
         ~vulkan();
 
+        void render();
+
     private:
         void create_instance();
         void bind_surface();
@@ -106,6 +108,7 @@ namespace caldera
         [[nodiscard]] vk::PresentModeKHR choose_swap_present_mode(const std::vector<vk::PresentModeKHR>&) const;
         [[nodiscard]] vk::Extent2D choose_swap_extent(const vk::SurfaceCapabilitiesKHR&) const;
         [[nodiscard]] queue_sharing_mode select_sharing_mode(const physical_device_properties&) const;
+        [[nodiscard]] const vk::Rect2D render_area() const;
         void create_image_views();
         void create_render_pass();
         void create_framebuffers();
@@ -117,6 +120,14 @@ namespace caldera
         void create_pipeline_layout();
         void create_graphic_pipeline();
         [[nodiscard]] vk::ShaderModule create_shader_module(vk::ShaderStageFlagBits, const std::string&) const;
+        void create_command_buffers();
+        [[nodiscard]] vk::CommandBuffer& current_buffer(std::uint32_t image_in_flight_index);
+        void create_semaphores();
+        void next_frame();
+        [[nodiscard]] const vk::Semaphore& image_available_semaphore() const;
+        [[nodiscard]] const vk::Semaphore& render_finished_semaphore() const;
+        [[nodiscard]] const vk::Fence& in_flight_fence() const;
+        void create_fences();
 
         configuration m_configuration;
         debugger m_debugger;
@@ -147,6 +158,13 @@ namespace caldera
         std::vector<vk::PipelineShaderStageCreateInfo> m_stages;
         vk::Pipeline m_pipeline;
         vk::PipelineCache m_cache;
+        std::vector<vk::CommandBuffer> m_command_buffers;
+        unsigned int m_number_of_frames_in_flight;
+        unsigned int m_current_frame = 0;
+        std::vector<vk::Semaphore> m_image_available_semaphores;
+        std::vector<vk::Semaphore> m_render_finished_semaphores;
+        std::vector<vk::Fence> m_in_flight_fences;
+        std::vector<vk::Fence> m_images_in_flight;
     };
 
     class caldera_exception : public std::exception

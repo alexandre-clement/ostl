@@ -19,7 +19,7 @@ namespace ostl
     void window::maximize() { m_glass->maximize(); }
     void window::fullscreen() { m_glass->fullscreen(); }
 
-    void window::render() {}
+    void window::render() { m_glass->render(); }
 
     void window::set_key_callback(ostl::keyboard::callback kc) { m_glass->event_handler.use_listener(kc); }
 }  // namespace ostl

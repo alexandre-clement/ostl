@@ -12,6 +12,8 @@ namespace caldera
 
     void caldera::draw() {}
 
+    void caldera::render() { m_renderer.render(); }
+
     std::vector<const char*> caldera::required_extensions() const
     {
         std::vector<const char*> required_extensions;

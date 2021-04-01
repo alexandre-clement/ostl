@@ -16,6 +16,8 @@ namespace caldera
 
         void draw() override;
 
+        void render() override;
+
     private:
         surface_maker create_surface_maker();
         [[nodiscard]] std::vector<const char*> required_extensions() const;
