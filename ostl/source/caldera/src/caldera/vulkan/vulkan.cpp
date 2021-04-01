@@ -728,30 +728,30 @@ namespace caldera
 
         glslang::InitializeProcess();
         vk::ShaderModule vertexShaderModule = create_shader_module(vk::ShaderStageFlagBits::eVertex, R"(
-			#version 450
+            #version 450
 
-			void main()
-			{
-				vec2 circumscribed_triangle = 4. * vec2(gl_VertexIndex & 1, (gl_VertexIndex >> 1) & 1) - 1.;
-				gl_Position = vec4(circumscribed_triangle, 0.0, 1.0);
-			}
-			)");
+            void main()
+            {
+                vec2 circumscribed_triangle = 4. * vec2(gl_VertexIndex & 1, (gl_VertexIndex >> 1) & 1) - 1.;
+                gl_Position = vec4(circumscribed_triangle, 0.0, 1.0);
+            }
+            )");
         vk::ShaderModule fragmentShaderModule = create_shader_module(vk::ShaderStageFlagBits::eFragment, R"(
-			#version 450
+            #version 450
 
-			layout(location = 0) out vec4 frag_color;
+            layout(location = 0) out vec4 frag_color;
 
-			layout(binding = 0) uniform uniform_variables
-			{
-				float time;
-				vec2 resolution;
-			} uv;
+            layout(binding = 0) uniform uniform_variables
+            {
+                float time;
+                vec2 resolution;
+            } uv;
 
-			void main()
-			{
-				frag_color = vec4(vec3(0.), 1.);
-			}
-			)");
+            void main()
+            {
+                frag_color = vec4(vec3(0.), 1.);
+            }
+            )");
         glslang::FinalizeProcess();
 
         m_stages = {
