@@ -1,4 +1,4 @@
-FROM nvidia/vulkan:1.1.121
+FROM ubuntu:20.04
 
 RUN export DEBIAN_FRONTEND=noninteractive  \
     && apt-get update \
@@ -27,10 +27,13 @@ RUN export DEBIAN_FRONTEND=noninteractive  \
     && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
     && readonly DEBIAN_PACKAGES="g++-10" \
     && readonly CLANG_PACKAGES="11" \
+    && wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add - \
+    && wget -qO /etc/apt/sources.list.d/lunarg-vulkan-focal.list http://packages.lunarg.com/vulkan/lunarg-vulkan-focal.list \
     && apt-get update \
     && apt-get upgrade -y \
     && apt install -y \
         g++-10 \
+        vulkan-sdk \
     && wget https://apt.llvm.org/llvm.sh \
     && chmod +x llvm.sh \
     && ./llvm.sh 11 \
