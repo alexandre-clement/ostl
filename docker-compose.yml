@@ -10,7 +10,7 @@ services:
         CC: gcc-10
         CXX: g++-10
     volumes:
-      - ./out/gcc:/usr/ostl/out
+      - ./out/gcc:/usr/ostl/ostl/out
   clang:
     image: clang
     build:
@@ -20,4 +20,4 @@ services:
         CC: clang-11
         CXX: clang++-11
     volumes:
-      - ./out/clang:/usr/ostl/out
+      - ./out/clang:/usr/ostl/ostl/out
