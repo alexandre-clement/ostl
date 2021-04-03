@@ -14,6 +14,7 @@ namespace caldera
     {
     public:
         caldera(std::string p_title);
+        caldera(std::string p_title, std::uint32_t);
         virtual ~caldera() = default;
 
         void draw() override;

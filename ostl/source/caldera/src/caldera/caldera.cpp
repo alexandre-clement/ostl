@@ -1,13 +1,31 @@
 #include "caldera/caldera.hpp"
 
+#include <chrono>
+
 #include "caldera/glfw/glfw_utils.hpp"
 
 namespace caldera
 {
-    caldera::caldera(std::string p_title)
+    std::uint32_t default_version()
+    {
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+        auto local = std::localtime(&in_time_t);
+        return local->tm_year * 1e4 + local->tm_mon * 1e2 + local->tm_mday;
+    }
+
+    caldera::caldera(std::string p_title) : caldera(std::move(p_title), default_version()) {}
+
+    caldera::caldera(std::string p_title, std::uint32_t p_version)
         : glfw(p_title)
         , m_renderer(
-            {p_title, 20210328, debug::none, required_extensions(), create_surface_maker(), create_idle(), framebuffer})
+            {p_title,
+             p_version,
+             debug::none,
+             required_extensions(),
+             create_surface_maker(),
+             create_idle(),
+             framebuffer})
     {
     }
 
