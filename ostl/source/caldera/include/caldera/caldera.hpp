@@ -8,7 +8,9 @@
 
 namespace caldera
 {
-    class caldera : public glfw
+    class caldera
+        : public glfw
+        , private detail::loggable<caldera>
     {
     public:
         caldera(std::string p_title);

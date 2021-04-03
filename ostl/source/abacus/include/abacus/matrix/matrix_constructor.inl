@@ -56,4 +56,18 @@ namespace abacus
         this->at(row, column) = static_cast<scalar_type>(h);
         initialize<i + 1>(t...);
     }
+
+    template<class _scalar_type, index _rows, index _columns>
+    template<convertible_to<_scalar_type> argument_type>
+    constexpr matrix<_scalar_type, _rows, _columns>::matrix(const matrix<argument_type, _rows, _columns>& m) : matrix()
+    {
+        for (index row = 0; row < _rows; ++row)
+        {
+            for (index column = 0; column < _columns; ++column)
+            {
+                this->at(row, column) = static_cast<scalar_type>(m.at(row, column));
+            }
+        }
+    }
+
 }  // namespace abacus

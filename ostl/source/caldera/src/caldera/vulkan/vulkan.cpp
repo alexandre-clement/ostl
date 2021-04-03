@@ -206,6 +206,8 @@ namespace caldera
         m_instance.destroy(nullptr);
     }
 
+    void vulkan::change_fragment_shader(std::string) {}
+
     void vulkan::render()
     {
         auto result = m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX);
@@ -230,7 +232,7 @@ namespace caldera
 
         m_images_in_flight.at(image_index) = in_flight_fence();
 
-        // update uniform variables
+        update_uniform_variables(image_index);
 
         vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         vk::SubmitInfo submit_info = vk::SubmitInfo()
@@ -811,9 +813,14 @@ namespace caldera
 
             layout(location = 0) out vec4 frag_color;
 
+			layout(binding = 0) uniform uniform_variables
+			{
+				ivec2 res;
+			};
+
             void main()
             {
-                frag_color = vec4(vec3(0.), 1.);
+                frag_color = vec4(vec3(gl_FragCoord.xy / res, .4), 1.);
             }
             )");
         glslang::FinalizeProcess();
@@ -1055,6 +1062,32 @@ namespace caldera
     const vk::Fence& vulkan::in_flight_fence() const { return m_in_flight_fences.at(m_current_frame); }
 
     void vulkan::create_fences() { m_images_in_flight.resize(m_images.size(), nullptr); }
+
+    [[nodiscard]] std::uint64_t vulkan::uniform_data_size() const
+    {
+        std::uint64_t sum = 0ul;
+        for (const auto [_, size] : m_uniform_variables)
+        {
+            sum += size;
+        }
+        return sum;
+    }
+
+    void vulkan::update_uniform_variables(std::uint32_t p_index)
+    {
+        if (std::uint64_t total_size = uniform_data_size() > 0ul)
+        {
+            char* data = static_cast<char*>(m_device.mapMemory(m_memory.at(p_index), 0ul, total_size));
+            std::uint64_t offset = 0ul;
+            for (const auto& [address, size] : m_uniform_variables)
+            {
+                memcpy(data + offset, address, size);
+                offset += size;
+            }
+            m_device.unmapMemory(m_memory.at(p_index));
+            m_uniform_variables.clear();
+        }
+    }
 
     const char* suitable_physical_device_not_found_exception::what() const noexcept
     {

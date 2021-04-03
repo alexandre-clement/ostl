@@ -6,11 +6,11 @@ namespace caldera
 {
     caldera::caldera(std::string p_title)
         : glfw(p_title)
-        , m_renderer({p_title, 20210328, debug::none, required_extensions(), create_surface_maker(), framebuffer()})
+        , m_renderer({p_title, 20210328, debug::none, required_extensions(), create_surface_maker(), framebuffer})
     {
     }
 
-    void caldera::draw() {}
+    void caldera::draw() { m_renderer.add_uniform(&size); }
 
     void caldera::render() { m_renderer.render(); }
 

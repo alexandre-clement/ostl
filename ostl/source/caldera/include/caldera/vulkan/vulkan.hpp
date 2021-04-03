@@ -87,6 +87,13 @@ namespace caldera
         vulkan(configuration);
         ~vulkan();
 
+        void change_fragment_shader(std::string);
+        template<class type>
+        void add_uniform(const type* p_variable)
+        {
+            m_uniform_variables.push_back({p_variable, sizeof(type)});
+        }
+
         void render();
 
     private:
@@ -128,6 +135,8 @@ namespace caldera
         [[nodiscard]] const vk::Semaphore& render_finished_semaphore() const;
         [[nodiscard]] const vk::Fence& in_flight_fence() const;
         void create_fences();
+        [[nodiscard]] std::uint64_t uniform_data_size() const;
+        void update_uniform_variables(std::uint32_t);
 
         configuration m_configuration;
         debugger m_debugger;
@@ -165,6 +174,8 @@ namespace caldera
         std::vector<vk::Semaphore> m_render_finished_semaphores;
         std::vector<vk::Fence> m_in_flight_fences;
         std::vector<vk::Fence> m_images_in_flight;
+        using uniform_data = std::pair<const void*, std::uint64_t>;
+        std::vector<uniform_data> m_uniform_variables;
     };
 
     class caldera_exception : public std::exception

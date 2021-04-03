@@ -32,7 +32,8 @@ namespace caldera
         [[nodiscard]] glfw_pointer handle();
         [[nodiscard]] glfw_pointer handle() const;
 
-        [[nodiscard]] abacus::matrix<unsigned int, 1, 2> framebuffer();
+        abacus::matrix<int, 1, 2> size;
+        abacus::matrix<int, 1, 2> framebuffer;
 
     private:
         glfw_pointer m_window;
@@ -41,5 +42,7 @@ namespace caldera
         static glfw& controller(glfw_pointer);
 
         static void key_callback(glfw_pointer, int, int, int, int);
+        static void window_size_callback(GLFWwindow*, int, int);
+        static void framebuffer_size_callback(GLFWwindow*, int, int);
     };
 }  // namespace caldera

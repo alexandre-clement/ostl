@@ -57,5 +57,6 @@ namespace ostl
     void window::draw(object obj, texture text)
     {
         drawer<object>::draw(obj, text);
+        m_glass->draw();
     }
 }  // namespace ostl

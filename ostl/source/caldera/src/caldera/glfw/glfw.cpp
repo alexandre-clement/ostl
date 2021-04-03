@@ -10,8 +10,13 @@ namespace caldera
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         m_window = glfwCreateWindow(mode->width, mode->height, m_title.c_str(), nullptr, nullptr);
 
+        glfwGetWindowSize(m_window, &size.x, &size.y);
+        glfwGetFramebufferSize(m_window, &framebuffer.x, &framebuffer.y);
+
         glfwSetWindowUserPointer(m_window, this);
         glfwSetKeyCallback(m_window, key_callback);
+        glfwSetWindowSizeCallback(m_window, window_size_callback);
+        glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
     }
 
     [[nodiscard]] bool glfw::is_open() const { return !glfwWindowShouldClose(m_window); }
@@ -34,13 +39,6 @@ namespace caldera
     [[nodiscard]] glfw::glfw_pointer glfw::handle() { return m_window; }
     [[nodiscard]] glfw::glfw_pointer glfw::handle() const { return m_window; }
 
-    abacus::matrix<unsigned int, 1, 2> glfw::framebuffer()
-    {
-        int x, y;
-        glfwGetFramebufferSize(m_window, &x, &y);
-        return {x, y};
-    }
-
     glfw& glfw::controller(glfw_pointer p_window)
     {
         return *reinterpret_cast<glfw*>(glfwGetWindowUserPointer(p_window));
@@ -57,5 +55,19 @@ namespace caldera
                 self.press(k);
                 break;
         }
+    }
+
+    void glfw::window_size_callback(GLFWwindow* p_window, int p_width, int p_height)
+    {
+        glfw& self = controller(p_window);
+        self.size.x = p_width;
+        self.size.y = p_height;
+    }
+
+    void glfw::framebuffer_size_callback(GLFWwindow* p_window, int p_width, int p_height)
+    {
+        glfw& self = controller(p_window);
+        self.framebuffer.x = p_width;
+        self.framebuffer.y = p_height;
     }
 }  // namespace caldera
