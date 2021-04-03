@@ -14,4 +14,6 @@ namespace caldera
     const std::uint32_t caldera_version = CALDERA_VERSION;
 
     using surface_maker = std::function<vk::SurfaceKHR(vk::Instance)>;
+
+    using idle = std::function<void()>;
 }  // namespace caldera

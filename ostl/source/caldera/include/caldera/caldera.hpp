@@ -22,6 +22,7 @@ namespace caldera
 
     private:
         surface_maker create_surface_maker();
+        idle create_idle();
         [[nodiscard]] std::vector<const char*> required_extensions() const;
 
         vulkan m_renderer;

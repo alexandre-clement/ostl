@@ -158,6 +158,7 @@ namespace caldera
         create_descriptor_set_layout();
         create_descriptor_sets();
         create_pipeline_layout();
+        create_stages();
         create_graphic_pipeline();
         create_command_buffers();
         create_semaphores();
@@ -176,30 +177,21 @@ namespace caldera
             m_device.destroySemaphore(render_finished);
             m_device.destroyFence(in_flight);
         }
-        m_device.freeCommandBuffers(m_command_pool, m_command_buffers);
-        m_device.destroyPipeline(m_pipeline);
-        for (const auto& stage : m_stages)
-        {
-            m_device.destroyShaderModule(stage.module);
-        }
-        m_device.destroyPipelineLayout(m_layout);
-        m_device.destroyDescriptorSetLayout(m_descriptor_set_layout);
+        destroy_command_buffers();
+        destroy_graphic_pipeline();
+        destroy_stages();
+        destroy_pipeline_layout();
+        destroy_descriptor_set_layout();
         for (auto [buffer, memory] : detail::zip(m_buffers, m_memory))
         {
             m_device.destroyBuffer(buffer);
             m_device.freeMemory(memory);
         }
-        m_device.destroyDescriptorPool(m_descriptor_pool);
-        for (auto& framebuffer : m_framebuffers)
-        {
-            m_device.destroyFramebuffer(framebuffer);
-        }
-        m_device.destroyRenderPass(m_render_pass);
-        for (auto& image_view : m_image_views)
-        {
-            m_device.destroyImageView(image_view);
-        }
-        m_device.destroySwapchainKHR(m_swap_chain);
+        destroy_descriptor_pool();
+        destroy_framebuffers();
+        destroy_render_pass();
+        destroy_image_views();
+        destroy_swap_chain();
         m_device.destroyCommandPool(m_command_pool);
         m_device.destroy();
         m_instance.destroySurfaceKHR(m_surface);
@@ -210,29 +202,36 @@ namespace caldera
 
     void vulkan::render()
     {
-        auto result = m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX);
-
-        std::uint32_t image_index;
-
-        do
+        if (m_extent.width != m_configuration.framebuffer.x || m_extent.height != m_configuration.framebuffer.y)
         {
-            result = m_device.acquireNextImageKHR(
-              m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr, &image_index);
-
-            if (result == vk::Result::eErrorOutOfDateKHR)
-            {
-                // recreate image buffer
-            }
-        } while (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR);
-
-        if (m_images_in_flight.at(image_index))
-        {
-            result = m_device.waitForFences(m_images_in_flight.at(image_index), VK_TRUE, UINT64_MAX);
+            recreate_image_buffer();
         }
 
-        m_images_in_flight.at(image_index) = in_flight_fence();
+        auto result = m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX);
 
-        update_uniform_variables(image_index);
+        auto [r, index] = m_device.acquireNextImageKHR(m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr);
+
+        switch (r)
+        {
+            case vk::Result::eSuboptimalKHR:
+                [[fallthrough]];
+            case vk::Result::eSuccess:
+                break;
+            case vk::Result::eErrorOutOfDateKHR:
+                recreate_image_buffer();
+                [[fallthrough]];
+            default:
+                return;
+        }
+
+        if (m_images_in_flight.at(index))
+        {
+            result = m_device.waitForFences(m_images_in_flight.at(index), VK_TRUE, UINT64_MAX);
+        }
+
+        m_images_in_flight.at(index) = in_flight_fence();
+
+        update_uniform_variables(index);
 
         vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         vk::SubmitInfo submit_info = vk::SubmitInfo()
@@ -240,7 +239,7 @@ namespace caldera
                                        .setPWaitSemaphores(&image_available_semaphore())
                                        .setPWaitDstStageMask(&wait_dst_stage_mask)
                                        .setCommandBufferCount(1u)
-                                       .setPCommandBuffers(&current_buffer(image_index))
+                                       .setPCommandBuffers(&current_buffer(index))
                                        .setSignalSemaphoreCount(1u)
                                        .setPSignalSemaphores(&render_finished_semaphore());
 
@@ -252,13 +251,14 @@ namespace caldera
                                             .setPWaitSemaphores(&render_finished_semaphore())
                                             .setSwapchainCount(1u)
                                             .setPSwapchains(&m_swap_chain)
-                                            .setPImageIndices(&image_index)
+                                            .setPImageIndices(&index)
                                             .setPResults(nullptr);
 
         result = m_present_queue.presentKHR(present_info);
+
         if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
         {
-            // recreate image buffer
+            recreate_image_buffer();
         }
 
         next_frame();
@@ -554,9 +554,13 @@ namespace caldera
         {
             return {
               std::clamp(
-                m_configuration.framebuffer.x, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+                std::uint32_t(m_configuration.framebuffer.x),
+                capabilities.minImageExtent.width,
+                capabilities.maxImageExtent.width),
               std::clamp(
-                m_configuration.framebuffer.y, capabilities.minImageExtent.height, capabilities.maxImageExtent.height),
+                std::uint32_t(m_configuration.framebuffer.y),
+                capabilities.minImageExtent.height,
+                capabilities.maxImageExtent.height),
             };
         }
     }
@@ -595,6 +599,16 @@ namespace caldera
         }
 
         log.debug("successfully created vulkan image views");
+    }
+
+    void vulkan::destroy_swap_chain() { m_device.destroySwapchainKHR(m_swap_chain); }
+
+    void vulkan::destroy_image_views()
+    {
+        for (auto& image_view : m_image_views)
+        {
+            m_device.destroyImageView(image_view);
+        }
     }
 
     void vulkan::create_render_pass()
@@ -655,6 +669,8 @@ namespace caldera
         log.debug("successfully created vulkan render pass");
     }
 
+    void vulkan::destroy_render_pass() { m_device.destroyRenderPass(m_render_pass); }
+
     void vulkan::create_framebuffers()
     {
         log.debug("creating vulkan framebuffer");
@@ -678,6 +694,14 @@ namespace caldera
         log.debug("successfully created vulkan framebuffer");
     }
 
+    void vulkan::destroy_framebuffers()
+    {
+        for (auto& framebuffer : m_framebuffers)
+        {
+            m_device.destroyFramebuffer(framebuffer);
+        }
+    }
+
     void vulkan::create_descriptor_pool()
     {
         std::vector<vk::DescriptorPoolSize> pool_sizes = {
@@ -690,6 +714,8 @@ namespace caldera
 
         m_descriptor_pool = m_device.createDescriptorPool(info);
     }
+
+    void vulkan::destroy_descriptor_pool() { m_device.destroyDescriptorPool(m_descriptor_pool); }
 
     void vulkan::create_uniform_buffer()
     {
@@ -747,6 +773,8 @@ namespace caldera
         m_descriptor_set_layout = m_device.createDescriptorSetLayout(layout_info);
     }
 
+    void vulkan::destroy_descriptor_set_layout() { m_device.destroyDescriptorSetLayout(m_descriptor_set_layout); }
+
     void vulkan::create_descriptor_sets()
     {
         std::vector<vk::DescriptorSetLayout> layouts(m_images.size(), m_descriptor_set_layout);
@@ -794,12 +822,12 @@ namespace caldera
         log.debug("successfully created vulkan pipeline layout");
     }
 
-    void vulkan::create_graphic_pipeline()
-    {
-        log.debug("creating vulkan graphics pipeline");
+    void vulkan::destroy_pipeline_layout() { m_device.destroyPipelineLayout(m_layout); }
 
+    void vulkan::create_stages()
+    {
         glslang::InitializeProcess();
-        vk::ShaderModule vertexShaderModule = create_shader_module(vk::ShaderStageFlagBits::eVertex, R"(
+        vk::ShaderModule vertex = create_shader_module(vk::ShaderStageFlagBits::eVertex, R"(
             #version 450
 
             void main()
@@ -808,7 +836,7 @@ namespace caldera
                 gl_Position = vec4(circumscribed_triangle, 0.0, 1.0);
             }
             )");
-        vk::ShaderModule fragmentShaderModule = create_shader_module(vk::ShaderStageFlagBits::eFragment, R"(
+        vk::ShaderModule fragment = create_shader_module(vk::ShaderStageFlagBits::eFragment, R"(
             #version 450
 
             layout(location = 0) out vec4 frag_color;
@@ -826,10 +854,21 @@ namespace caldera
         glslang::FinalizeProcess();
 
         m_stages = {
-          vk::PipelineShaderStageCreateInfo(
-            vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertexShaderModule, "main"),
-          vk::PipelineShaderStageCreateInfo(
-            vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragmentShaderModule, "main")};
+          {vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertex, "main"},
+          {vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragment, "main"}};
+    }
+
+    void vulkan::destroy_stages()
+    {
+        for (const auto& stage : m_stages)
+        {
+            m_device.destroyShaderModule(stage.module);
+        }
+    }
+
+    void vulkan::create_graphic_pipeline()
+    {
+        log.debug("creating vulkan graphics pipeline");
 
         vk::PipelineVertexInputStateCreateInfo vertex_input = vk::PipelineVertexInputStateCreateInfo()
                                                                 .setVertexBindingDescriptionCount(0u)
@@ -904,6 +943,8 @@ namespace caldera
 
         log.debug("successfully created vulkan graphics pipeline");
     }
+
+    void vulkan::destroy_graphic_pipeline() { m_device.destroyPipeline(m_pipeline); }
 
     EShLanguage vk_shader_stage_to_glslang(vk::ShaderStageFlagBits stage)
     {
@@ -1030,6 +1071,8 @@ namespace caldera
         return m_command_buffers.at(image_in_flight_index);
     }
 
+    void vulkan::destroy_command_buffers() { m_device.freeCommandBuffers(m_command_pool, m_command_buffers); }
+
     void vulkan::create_semaphores()
     {
         log.debug("creating vulkan synchronizer");
@@ -1087,6 +1130,41 @@ namespace caldera
             m_device.unmapMemory(m_memory.at(p_index));
             m_uniform_variables.clear();
         }
+    }
+
+    void vulkan::recreate_image_buffer()
+    {
+        log.warn("recreating image buffer");
+
+        while (m_configuration.framebuffer.x == 0 || m_configuration.framebuffer.y == 0)
+        {
+            m_configuration.wait();
+        }
+
+        m_device.waitIdle();
+
+        destroy_command_buffers();
+        destroy_graphic_pipeline();
+        destroy_pipeline_layout();
+        destroy_descriptor_set_layout();
+        destroy_descriptor_pool();
+        destroy_framebuffers();
+        destroy_render_pass();
+        destroy_image_views();
+        destroy_swap_chain();
+
+        create_swap_chain();
+        create_image_views();
+        create_render_pass();
+        create_framebuffers();
+        create_descriptor_pool();
+        create_descriptor_set_layout();
+        create_descriptor_sets();
+        create_pipeline_layout();
+        create_graphic_pipeline();
+        create_command_buffers();
+
+        log.info("successfully recreated image buffer.");
     }
 
     const char* suitable_physical_device_not_found_exception::what() const noexcept

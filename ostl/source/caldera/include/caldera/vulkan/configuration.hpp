@@ -18,6 +18,7 @@ namespace caldera
         debug debug_mode;
         std::vector<c_str> required_extensions;
         surface_maker create_surface;
-        const abacus::matrix<std::uint32_t, 1, 2>& framebuffer;
+        idle wait;
+        const abacus::matrix<int, 1, 2>& framebuffer;
     };
 }  // namespace caldera

@@ -37,7 +37,7 @@ namespace abacus
         constexpr matrix(head, body, tail...);
         constexpr matrix(const matrix&) = default;
         template<convertible_to<_scalar_type> argument_type>
-        constexpr matrix(const matrix<argument_type, _rows, _columns>&);
+        constexpr explicit matrix(const matrix<argument_type, _rows, _columns>&);
         constexpr matrix(matrix&&) noexcept = default;
         constexpr matrix& operator=(const matrix&) = default;
         constexpr matrix& operator=(matrix&&) noexcept = default;

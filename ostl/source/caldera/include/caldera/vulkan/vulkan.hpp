@@ -116,19 +116,30 @@ namespace caldera
         [[nodiscard]] vk::Extent2D choose_swap_extent(const vk::SurfaceCapabilitiesKHR&) const;
         [[nodiscard]] queue_sharing_mode select_sharing_mode(const physical_device_properties&) const;
         [[nodiscard]] const vk::Rect2D render_area() const;
+        void destroy_swap_chain();
         void create_image_views();
+        void destroy_image_views();
         void create_render_pass();
+        void destroy_render_pass();
         void create_framebuffers();
+        void destroy_framebuffers();
         void create_descriptor_pool();
+        void destroy_descriptor_pool();
         void create_uniform_buffer();
         [[nodiscard]] std::uint32_t find_memory_type(std::uint32_t, vk::MemoryPropertyFlags) const;
         void create_descriptor_set_layout();
+        void destroy_descriptor_set_layout();
         void create_descriptor_sets();
         void create_pipeline_layout();
+        void destroy_pipeline_layout();
+        void create_stages();
+        void destroy_stages();
         void create_graphic_pipeline();
+        void destroy_graphic_pipeline();
         [[nodiscard]] vk::ShaderModule create_shader_module(vk::ShaderStageFlagBits, const std::string&) const;
         void create_command_buffers();
         [[nodiscard]] vk::CommandBuffer& current_buffer(std::uint32_t image_in_flight_index);
+        void destroy_command_buffers();
         void create_semaphores();
         void next_frame();
         [[nodiscard]] const vk::Semaphore& image_available_semaphore() const;
@@ -137,6 +148,7 @@ namespace caldera
         void create_fences();
         [[nodiscard]] std::uint64_t uniform_data_size() const;
         void update_uniform_variables(std::uint32_t);
+        void recreate_image_buffer();
 
         configuration m_configuration;
         debugger m_debugger;

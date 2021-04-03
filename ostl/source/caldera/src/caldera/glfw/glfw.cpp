@@ -36,6 +36,8 @@ namespace caldera
 
     void glfw::poll_events() { glfwPollEvents(); }
 
+    void glfw::wait_events() { glfwWaitEvents(); }
+
     [[nodiscard]] glfw::glfw_pointer glfw::handle() { return m_window; }
     [[nodiscard]] glfw::glfw_pointer glfw::handle() const { return m_window; }
 

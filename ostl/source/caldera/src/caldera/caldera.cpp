@@ -6,7 +6,8 @@ namespace caldera
 {
     caldera::caldera(std::string p_title)
         : glfw(p_title)
-        , m_renderer({p_title, 20210328, debug::none, required_extensions(), create_surface_maker(), framebuffer})
+        , m_renderer(
+            {p_title, 20210328, debug::none, required_extensions(), create_surface_maker(), create_idle(), framebuffer})
     {
     }
 
@@ -33,5 +34,10 @@ namespace caldera
             glfwCreateWindowSurface(p_instance, handle(), nullptr, &surface);
             return surface;
         };
+    }
+
+    idle caldera::create_idle()
+    {
+        return [&]() { wait_events(); };
     }
 }  // namespace caldera

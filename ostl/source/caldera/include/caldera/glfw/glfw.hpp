@@ -27,6 +27,7 @@ namespace caldera
         void fullscreen() override;
 
         void poll_events() override;
+        void wait_events();
 
         using glfw_pointer = GLFWwindow*;
         [[nodiscard]] glfw_pointer handle();
