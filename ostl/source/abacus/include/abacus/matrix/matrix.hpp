@@ -100,6 +100,10 @@ namespace abacus
     using mat4x3 = matrix<float, 4, 3>;
     using mat4x4 = matrix<float, 4, 4>;
     using mat4 = mat4x4;
+
+    using ivec2 = matrix<int, 1, 2>;
+    using ivec3 = matrix<int, 1, 3>;
+    using ivec4 = matrix<int, 1, 4>;
 }  // namespace abacus
 
 #include "matrix.inl"

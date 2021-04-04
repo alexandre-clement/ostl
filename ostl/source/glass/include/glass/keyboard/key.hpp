@@ -7,6 +7,7 @@ namespace glass::keyboard
         unknown = -1,
 
         escape = 0,
+        f11,
 
         count
     };

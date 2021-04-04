@@ -29,9 +29,13 @@ namespace caldera
     {
     }
 
-    void caldera::draw() { m_renderer.add_uniform(&size); }
+    void caldera::draw() {}
 
-    void caldera::render() { m_renderer.render(); }
+    void caldera::render()
+    {
+        m_renderer.add_uniform(&size);
+        m_renderer.render();
+    }
 
     std::vector<const char*> caldera::required_extensions() const
     {

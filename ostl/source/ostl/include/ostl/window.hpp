@@ -30,6 +30,9 @@ namespace ostl
         void minimize();
         void maximize();
         void fullscreen();
+        void restore();
+
+        [[nodiscard]] bool is_fullscreen() const;
 
         void poll_events();
 

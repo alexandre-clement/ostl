@@ -19,6 +19,6 @@ namespace caldera
         std::vector<c_str> required_extensions;
         surface_maker create_surface;
         idle wait;
-        const abacus::matrix<int, 1, 2>& framebuffer;
+        const abacus::ivec2& framebuffer;
     };
 }  // namespace caldera

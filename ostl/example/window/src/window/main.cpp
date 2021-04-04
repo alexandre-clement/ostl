@@ -12,6 +12,10 @@ int main()
         {
             window.close();
         }
+        if (key.keycode == ostl::keyboard::key::f11 && key.key_action == ostl::keyboard::action::press)
+        {
+            window.fullscreen();
+        }
     });
 
     ostl::sphere sphere;

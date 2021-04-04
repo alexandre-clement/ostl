@@ -18,6 +18,9 @@ namespace ostl
     void window::minimize() { m_glass->minimize(); }
     void window::maximize() { m_glass->maximize(); }
     void window::fullscreen() { m_glass->fullscreen(); }
+    void window::restore() { m_glass->restore(); }
+
+    bool window::is_fullscreen() const { return m_glass->is_fullscreen(); }
 
     void window::render() { m_glass->render(); }
 
