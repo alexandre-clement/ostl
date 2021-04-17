@@ -66,7 +66,7 @@ namespace caldera
         [[nodiscard]] physical_device_properties build() const;
         [[nodiscard]] bool operator>(const physical_device_evaluation&) const;
 
-        unsigned int score = 1;
+        unsigned int score = 1u;
         bool is_discrete = false;
         queue_family_indices indices;
         physical_device_extensions pde;
@@ -145,10 +145,12 @@ namespace caldera
         [[nodiscard]] const vk::Semaphore& image_available_semaphore() const;
         [[nodiscard]] const vk::Semaphore& render_finished_semaphore() const;
         [[nodiscard]] const vk::Fence& in_flight_fence() const;
+        vk::Fence& in_flight_image(std::uint32_t);
+        [[nodiscard]] const vk::Fence& in_flight_image(std::uint32_t) const;
         void create_fences();
         [[nodiscard]] std::uint64_t uniform_data_size() const;
         void update_uniform_variables(std::uint32_t);
-        void recreate_image_buffer();
+        void recreate_swap_chain();
 
         configuration m_configuration;
         debugger m_debugger;
@@ -181,7 +183,7 @@ namespace caldera
         vk::PipelineCache m_cache;
         std::vector<vk::CommandBuffer> m_command_buffers;
         unsigned int m_number_of_frames_in_flight;
-        unsigned int m_current_frame = 0;
+        unsigned int m_current_frame = 0u;
         std::vector<vk::Semaphore> m_image_available_semaphores;
         std::vector<vk::Semaphore> m_render_finished_semaphores;
         std::vector<vk::Fence> m_in_flight_fences;

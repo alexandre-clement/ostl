@@ -202,63 +202,49 @@ namespace caldera
 
     void vulkan::render()
     {
-        if (m_extent.width != m_configuration.framebuffer.x || m_extent.height != m_configuration.framebuffer.y)
-        {
-            recreate_image_buffer();
-        }
+        while (vk::Result::eTimeout == m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX))
+            ;
 
-        auto result = m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX);
+        auto [result, index] =
+          m_device.acquireNextImageKHR(m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr);
 
-        auto [r, index] = m_device.acquireNextImageKHR(m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr);
-
-        switch (r)
+        switch (result)
         {
             case vk::Result::eSuboptimalKHR:
                 [[fallthrough]];
             case vk::Result::eSuccess:
                 break;
             case vk::Result::eErrorOutOfDateKHR:
-                recreate_image_buffer();
+                recreate_swap_chain();
                 [[fallthrough]];
             default:
                 return;
         }
 
-        if (m_images_in_flight.at(index))
+        if (in_flight_image(index))
         {
-            result = m_device.waitForFences(m_images_in_flight.at(index), VK_TRUE, UINT64_MAX);
+            while (vk::Result::eTimeout == m_device.waitForFences(in_flight_image(index), VK_TRUE, UINT64_MAX))
+                ;
         }
 
-        m_images_in_flight.at(index) = in_flight_fence();
+        in_flight_image(index) = in_flight_fence();
 
         update_uniform_variables(index);
 
         vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-        vk::SubmitInfo submit_info = vk::SubmitInfo()
-                                       .setWaitSemaphoreCount(1u)
-                                       .setPWaitSemaphores(&image_available_semaphore())
-                                       .setPWaitDstStageMask(&wait_dst_stage_mask)
-                                       .setCommandBufferCount(1u)
-                                       .setPCommandBuffers(&current_buffer(index))
-                                       .setSignalSemaphoreCount(1u)
-                                       .setPSignalSemaphores(&render_finished_semaphore());
+        vk::SubmitInfo submit_info = vk::SubmitInfo(
+          image_available_semaphore(), wait_dst_stage_mask, current_buffer(index), render_finished_semaphore());
 
         m_device.resetFences(in_flight_fence());
         m_graphics_queue.submit(submit_info, in_flight_fence());
 
-        vk::PresentInfoKHR present_info = vk::PresentInfoKHR()
-                                            .setWaitSemaphoreCount(1u)
-                                            .setPWaitSemaphores(&render_finished_semaphore())
-                                            .setSwapchainCount(1u)
-                                            .setPSwapchains(&m_swap_chain)
-                                            .setPImageIndices(&index)
-                                            .setPResults(nullptr);
+        vk::PresentInfoKHR present_info = vk::PresentInfoKHR(render_finished_semaphore(), m_swap_chain, index);
 
         result = m_present_queue.presentKHR(present_info);
 
         if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
         {
-            recreate_image_buffer();
+            recreate_swap_chain();
         }
 
         next_frame();
@@ -283,16 +269,11 @@ namespace caldera
                                                                .setApplicationVersion(m_configuration.version)
                                                                .setPEngineName(engine_name.c_str())
                                                                .setEngineVersion(engine_version)
-                                                               .setApiVersion(VK_MAKE_VERSION(1, 0, 0));
+                                                               .setApiVersion(VK_MAKE_VERSION(1, 2, VK_HEADER_VERSION));
 
         const vk::InstanceCreateInfo instance_informations =
-          vk::InstanceCreateInfo()
-            .setPApplicationInfo(&application_informations)
-            .setPNext(&m_debugger.messenger_info)
-            .setEnabledLayerCount(m_debugger.validation_layers.size())
-            .setPpEnabledLayerNames(m_debugger.validation_layers.data())
-            .setEnabledExtensionCount(extensions.size())
-            .setPpEnabledExtensionNames(extensions.data());
+          vk::InstanceCreateInfo({}, &application_informations, m_debugger.validation_layers, extensions)
+            .setPNext(&m_debugger.messenger_info);
 
         m_instance = vk::createInstance(instance_informations);
 
@@ -379,8 +360,8 @@ namespace caldera
         for (const auto& gpu_extension : required_gpu_extensions)
         {
             if (
-              std::find(required_gpu_extensions.begin(), required_gpu_extensions.end(), gpu_extension) ==
-              required_gpu_extensions.end())
+              std::find(available_gpu_extensions.begin(), available_gpu_extensions.end(), gpu_extension) ==
+              available_gpu_extensions.end())
             {
                 log.debug("{} misses extension {}", device.getProperties().deviceName, gpu_extension);
                 extensions.contains_all_required_extensions = false;
@@ -427,14 +408,13 @@ namespace caldera
     {
         log.debug("create logical device");
         physical_device_properties properties = gpu_properties();
-        float priority = 1.0f;
+        const std::array<const float, 1> priorities{1.0f};
         std::vector<vk::DeviceQueueCreateInfo> queue_informations;
         std::set<std::uint32_t> queues_indices = {properties.graphics_family, properties.present_family};
 
         for (std::uint32_t index : queues_indices)
         {
-            queue_informations.push_back(
-              vk::DeviceQueueCreateInfo().setQueueFamilyIndex(index).setQueueCount(1u).setPQueuePriorities(&priority));
+            queue_informations.emplace_back(vk::DeviceQueueCreateFlags(), index, priorities);
         }
         log.debug("{} vulkan extensions will be loaded:", properties.extensions.size());
         for (const auto& extension : properties.extensions)
@@ -464,9 +444,7 @@ namespace caldera
 
     void vulkan::create_command_pool()
     {
-        vk::CommandPoolCreateInfo info = vk::CommandPoolCreateInfo()
-                                           .setFlags(vk::CommandPoolCreateFlags())
-                                           .setQueueFamilyIndex(gpu_properties().graphics_family);
+        vk::CommandPoolCreateInfo info(vk::CommandPoolCreateFlags(), gpu_properties().graphics_family);
 
         m_command_pool = m_device.createCommandPool(info);
     }
@@ -477,9 +455,9 @@ namespace caldera
         auto properties = gpu_properties();
 
         vk::SwapchainCreateFlagsKHR flags = vk::SwapchainCreateFlagsKHR();
-        std::uint32_t min_image_count = properties.surface_capabilities.minImageCount + 1;
+        std::uint32_t min_image_count = properties.surface_capabilities.minImageCount + 1u;
         if (
-          properties.surface_capabilities.maxImageCount > 0 &&
+          properties.surface_capabilities.maxImageCount > 0u &&
           min_image_count > properties.surface_capabilities.maxImageCount)
         {
             min_image_count = properties.surface_capabilities.maxImageCount;
@@ -497,7 +475,7 @@ namespace caldera
                                             .setImageFormat(m_format)
                                             .setImageColorSpace(surface_format.colorSpace)
                                             .setImageExtent(m_extent)
-                                            .setImageArrayLayers(1)
+                                            .setImageArrayLayers(1u)
                                             .setImageSharingMode(qsm.sharing_mode)
                                             .setQueueFamilyIndexCount(qsm.index_count)
                                             .setPQueueFamilyIndices(qsm.indices)
@@ -651,9 +629,7 @@ namespace caldera
             .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
             .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
             .setSrcAccessMask(static_cast<vk::AccessFlagBits>(0))
-            .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
-
-        };
+            .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)};
 
         vk::RenderPassCreateInfo info = vk::RenderPassCreateInfo()
                                           .setFlags(vk::RenderPassCreateFlags())
@@ -727,9 +703,7 @@ namespace caldera
             vk::BufferCreateInfo buffer_info =
               vk::BufferCreateInfo().setSize(m_buffer_size).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 
-            {
-                buffer = m_device.createBuffer(buffer_info);
-            }
+            buffer = m_device.createBuffer(buffer_info);
 
             auto requirements = m_device.getBufferMemoryRequirements(buffer);
 
@@ -1104,6 +1078,10 @@ namespace caldera
 
     const vk::Fence& vulkan::in_flight_fence() const { return m_in_flight_fences.at(m_current_frame); }
 
+    vk::Fence& vulkan::in_flight_image(std::uint32_t p_index) { return m_images_in_flight.at(p_index); }
+
+    const vk::Fence& vulkan::in_flight_image(std::uint32_t p_index) const { return m_images_in_flight.at(p_index); }
+
     void vulkan::create_fences() { m_images_in_flight.resize(m_images.size(), nullptr); }
 
     [[nodiscard]] std::uint64_t vulkan::uniform_data_size() const
@@ -1132,9 +1110,9 @@ namespace caldera
         }
     }
 
-    void vulkan::recreate_image_buffer()
+    void vulkan::recreate_swap_chain()
     {
-        log.warn("recreating image buffer");
+        log.warn("recreating swap chain");
 
         while (m_configuration.framebuffer.x == 0 || m_configuration.framebuffer.y == 0)
         {
@@ -1143,12 +1121,13 @@ namespace caldera
 
         m_device.waitIdle();
 
+        destroy_framebuffers();
         destroy_command_buffers();
         destroy_graphic_pipeline();
         destroy_pipeline_layout();
         destroy_descriptor_set_layout();
         destroy_descriptor_pool();
-        destroy_framebuffers();
+
         destroy_render_pass();
         destroy_image_views();
         destroy_swap_chain();
@@ -1156,12 +1135,13 @@ namespace caldera
         create_swap_chain();
         create_image_views();
         create_render_pass();
-        create_framebuffers();
+
         create_descriptor_pool();
         create_descriptor_set_layout();
         create_descriptor_sets();
         create_pipeline_layout();
         create_graphic_pipeline();
+        create_framebuffers();
         create_command_buffers();
 
         log.info("successfully recreated image buffer.");

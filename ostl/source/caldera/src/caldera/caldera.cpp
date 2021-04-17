@@ -6,12 +6,23 @@
 
 namespace caldera
 {
+    std::tm localtime(const std::time_t& time)
+    {
+        std::tm tm_snapshot;
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+        localtime_s(&tm_snapshot, &time);
+#else
+        localtime_r(&time, &tm_snapshot);  // POSIX
+#endif
+        return tm_snapshot;
+    }
+
     std::uint32_t default_version()
     {
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
-        auto local = std::localtime(&in_time_t);
-        return local->tm_year * 1e4 + local->tm_mon * 1e2 + local->tm_mday;
+        auto local = localtime(in_time_t);
+        return local.tm_year * 10000u + local.tm_mon * 100u + local.tm_mday;
     }
 
     caldera::caldera(std::string p_title) : caldera(std::move(p_title), default_version()) {}
@@ -51,10 +62,10 @@ namespace caldera
 
     surface_maker caldera::create_surface_maker()
     {
-        return [&](vk::Instance p_instance) -> vk::SurfaceKHR {
+        return [&](vk::Instance& p_instance) -> vk::SurfaceKHR {
             VkSurfaceKHR surface;
             glfwCreateWindowSurface(p_instance, handle(), nullptr, &surface);
-            return surface;
+            return std::move(surface);
         };
     }
 
