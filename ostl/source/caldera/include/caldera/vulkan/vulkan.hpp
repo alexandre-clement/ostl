@@ -97,6 +97,7 @@ namespace caldera
         void render();
 
     private:
+        void render_frame();
         void create_instance();
         void bind_surface();
         void pick_physical_device();
