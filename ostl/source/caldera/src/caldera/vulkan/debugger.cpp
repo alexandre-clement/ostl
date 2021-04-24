@@ -3,8 +3,7 @@
 #include <detail/detail.hpp>
 namespace caldera
 {
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
-      VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
       VkDebugUtilsMessageTypeFlagsEXT,
       const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
       void*)
@@ -37,12 +36,10 @@ namespace caldera
     debugger::debugger()
     {
         messenger_info
-          .setMessageSeverity(
-            vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-            vk::DebugUtilsMessageSeverityFlagBitsEXT::eError | vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo)
-          .setMessageType(
-            vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-            vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
+          .setMessageSeverity(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+                              | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError | vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo)
+          .setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
+                          | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
           .setPfnUserCallback(debug_callback);
 
         validation_layers.push_back("VK_LAYER_KHRONOS_validation");

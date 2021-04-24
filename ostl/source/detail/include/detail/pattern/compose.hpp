@@ -37,8 +37,7 @@ namespace detail
         };
 
         template<class g, class f, class visitables, class head, class body, class... tail>
-        class g_compound<g, f, visitables, pack<head, body, tail...>>
-            : public g_compound<g, f, visitables, pack<body, tail...>>
+        class g_compound<g, f, visitables, pack<head, body, tail...>> : public g_compound<g, f, visitables, pack<body, tail...>>
         {
         public:
             using g_compound<g, f, visitables, pack<body, tail...>>::g_compound;

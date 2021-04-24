@@ -36,8 +36,7 @@ namespace detail
         template<template<class...> class container, class head, class... tail, class... result_types>
         struct tuple_to_set<container<head, tail...>, container<result_types...>>
         {
-            using type = std::conditional_t<
-              contains_v<container<result_types...>, head>,
+            using type = std::conditional_t<contains_v<container<result_types...>, head>,
               typename tuple_to_set<container<tail...>, container<result_types...>>::type,
               typename tuple_to_set<container<tail...>, container<result_types..., head>>::type>;
         };

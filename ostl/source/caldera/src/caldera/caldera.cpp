@@ -29,14 +29,7 @@ namespace caldera
 
     caldera::caldera(std::string p_title, std::uint32_t p_version)
         : glfw(p_title)
-        , m_renderer(
-            {p_title,
-             p_version,
-             debug::none,
-             required_extensions(),
-             create_surface_maker(),
-             create_idle(),
-             framebuffer})
+        , m_renderer({p_title, p_version, debug::none, required_extensions(), create_surface_maker(), create_idle(), framebuffer})
     {
     }
 

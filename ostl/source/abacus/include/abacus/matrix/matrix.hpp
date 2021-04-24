@@ -30,10 +30,7 @@ namespace abacus
         constexpr matrix();
         template<convertible_to<_scalar_type> argument_type>
         constexpr explicit matrix(argument_type);
-        template<
-          convertible_to<_scalar_type> head,
-          convertible_to<_scalar_type> body,
-          convertible_to<_scalar_type>... tail>
+        template<convertible_to<_scalar_type> head, convertible_to<_scalar_type> body, convertible_to<_scalar_type>... tail>
         constexpr matrix(head, body, tail...);
         constexpr matrix(const matrix&) = default;
         template<convertible_to<_scalar_type> argument_type>

@@ -292,11 +292,9 @@ TEST(matrix, scalar_divided_by_matrix)
     test_scalar_divided_by_matrix(abacus::mat2x4(7, 49, 343, 2401, 16807, 117649, 823543, 5764801), 8);
     test_scalar_divided_by_matrix(abacus::mat3x2(8, 64, 512, 4096, 32768, 262144), 21);
     test_scalar_divided_by_matrix(abacus::mat3x3(9, 81, 729, 6561, 59049, 531441, 4782969, 43046721, 387420489), 55);
-    test_scalar_divided_by_matrix(
-      abacus::mat3x4(1.62, 2.62, 4.24, 6.85, 11.09, 17.94, 29.03, 46.98, 76.01, 122.99, 199.01, 322), 144);
+    test_scalar_divided_by_matrix(abacus::mat3x4(1.62, 2.62, 4.24, 6.85, 11.09, 17.94, 29.03, 46.98, 76.01, 122.99, 199.01, 322), 144);
     test_scalar_divided_by_matrix(abacus::mat4x2(-0.62, 0.38, -0.24, 0.15, -0.09, 0.06, -0.03, 0.02), 377);
-    test_scalar_divided_by_matrix(
-      abacus::mat4x3(0.79, 0.62, 0.48, 0.38, 0.3, 0.23, 0.18, 0.14, 0.11, 0.09, 0.07, 0.06), 987);
+    test_scalar_divided_by_matrix(abacus::mat4x3(0.79, 0.62, 0.48, 0.38, 0.3, 0.23, 0.18, 0.14, 0.11, 0.09, 0.07, 0.06), 987);
     test_scalar_divided_by_matrix(abacus::mat4x4(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), 2584);
 }
 
@@ -401,14 +399,13 @@ TEST(matrix, matrix_plus_matrix)
 
     test_matrix_plus_matrix(abacus::mat3x2(2, 2, 1, 4, 1, 2), abacus::mat3x2(3, 6, 2, 3, 1, 3));
     test_matrix_plus_matrix(abacus::mat3x3(2, 3, 1, 5, 1, 2, 3, 3, 2), abacus::mat3x3(3, 1, 5, 4, 2, 1, 4, 2, 2));
-    test_matrix_plus_matrix(
-      abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3), abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
+    test_matrix_plus_matrix(abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3),
+      abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
 
     test_matrix_plus_matrix(abacus::mat4x2(2, 5, 1, 3, 2, 5, 1, 3), abacus::mat4x2(2, 3, 3, 2, 2, 5, 2, 2));
-    test_matrix_plus_matrix(
-      abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2), abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
-    test_matrix_plus_matrix(
-      abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
+    test_matrix_plus_matrix(abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2),
+      abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
+    test_matrix_plus_matrix(abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
       abacus::mat4x4(1, 3, 3, 2, 1, 5, 2, 3, 3, 3, 1, 3, 3, 5, 2, 2));
 }
 
@@ -439,14 +436,13 @@ TEST(matrix, matrix_minus_matrix)
 
     test_matrix_minus_matrix(abacus::mat3x2(2, 2, 1, 4, 1, 2), abacus::mat3x2(3, 6, 2, 3, 1, 3));
     test_matrix_minus_matrix(abacus::mat3x3(2, 3, 1, 5, 1, 2, 3, 3, 2), abacus::mat3x3(3, 1, 5, 4, 2, 1, 4, 2, 2));
-    test_matrix_minus_matrix(
-      abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3), abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
+    test_matrix_minus_matrix(abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3),
+      abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
 
     test_matrix_minus_matrix(abacus::mat4x2(2, 5, 1, 3, 2, 5, 1, 3), abacus::mat4x2(2, 3, 3, 2, 2, 5, 2, 2));
-    test_matrix_minus_matrix(
-      abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2), abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
-    test_matrix_minus_matrix(
-      abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
+    test_matrix_minus_matrix(abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2),
+      abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
+    test_matrix_minus_matrix(abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
       abacus::mat4x4(1, 3, 3, 2, 1, 5, 2, 3, 3, 3, 1, 3, 3, 5, 2, 2));
 }
 
@@ -482,8 +478,7 @@ TEST(matrix, matrix_product)
     EXPECT_EQ(abacus::mat2(3, 4, 8, 11), abacus::mat2(1, 0, 2, -1) * abacus::mat2(3, 4, -2, -3));
 
     EXPECT_EQ(abacus::mat2(9, 7, 23, 9), abacus::mat2x3(1, 2, 0, 4, 3, -1) * abacus::mat3x2(5, 1, 2, 3, 3, 4));
-    EXPECT_EQ(
-      abacus::mat3(9, 13, -1, 14, 13, -3, 19, 18, -4),
+    EXPECT_EQ(abacus::mat3(9, 13, -1, 14, 13, -3, 19, 18, -4),
       abacus::mat3x2(5, 1, 2, 3, 3, 4) * abacus::mat2x3(1, 2, 0, 4, 3, -1));
 }
 
@@ -515,14 +510,13 @@ TEST(matrix, matrix_plus_equal_matrix)
 
     test_matrix_plus_equal_matrix(abacus::mat3x2(2, 2, 1, 4, 1, 2), abacus::mat3x2(3, 6, 2, 3, 1, 3));
     test_matrix_plus_equal_matrix(abacus::mat3x3(2, 3, 1, 5, 1, 2, 3, 3, 2), abacus::mat3x3(3, 1, 5, 4, 2, 1, 4, 2, 2));
-    test_matrix_plus_equal_matrix(
-      abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3), abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
+    test_matrix_plus_equal_matrix(abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3),
+      abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
 
     test_matrix_plus_equal_matrix(abacus::mat4x2(2, 5, 1, 3, 2, 5, 1, 3), abacus::mat4x2(2, 3, 3, 2, 2, 5, 2, 2));
-    test_matrix_plus_equal_matrix(
-      abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2), abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
-    test_matrix_plus_equal_matrix(
-      abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
+    test_matrix_plus_equal_matrix(abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2),
+      abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
+    test_matrix_plus_equal_matrix(abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
       abacus::mat4x4(1, 3, 3, 2, 1, 5, 2, 3, 3, 3, 1, 3, 3, 5, 2, 2));
 }
 
@@ -553,16 +547,14 @@ TEST(matrix, matrix_minus_equal_matrix)
     test_matrix_minus_equal_matrix(abacus::mat2x4(1, 3, 1, 3, 3, 2, 1, 5), abacus::mat2x4(2, 3, 2, 3, 1, 4, 2, 4));
 
     test_matrix_minus_equal_matrix(abacus::mat3x2(2, 2, 1, 4, 1, 2), abacus::mat3x2(3, 6, 2, 3, 1, 3));
-    test_matrix_minus_equal_matrix(
-      abacus::mat3x3(2, 3, 1, 5, 1, 2, 3, 3, 2), abacus::mat3x3(3, 1, 5, 4, 2, 1, 4, 2, 2));
-    test_matrix_minus_equal_matrix(
-      abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3), abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
+    test_matrix_minus_equal_matrix(abacus::mat3x3(2, 3, 1, 5, 1, 2, 3, 3, 2), abacus::mat3x3(3, 1, 5, 4, 2, 1, 4, 2, 2));
+    test_matrix_minus_equal_matrix(abacus::mat3x4(2, 4, 1, 4, 2, 3, 2, 2, 2, 6, 1, 3),
+      abacus::mat3x4(3, 4, 1, 3, 1, 4, 3, 2, 1, 5, 1, 3));
 
     test_matrix_minus_equal_matrix(abacus::mat4x2(2, 5, 1, 3, 2, 5, 1, 3), abacus::mat4x2(2, 3, 3, 2, 2, 5, 2, 2));
-    test_matrix_minus_equal_matrix(
-      abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2), abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
-    test_matrix_minus_equal_matrix(
-      abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
+    test_matrix_minus_equal_matrix(abacus::mat4x3(2, 3, 3, 4, 1, 7, 2, 3, 1, 4, 2, 2),
+      abacus::mat4x3(4, 4, 1, 3, 1, 4, 2, 2, 2, 6, 2, 2));
+    test_matrix_minus_equal_matrix(abacus::mat4x4(3, 3, 1, 4, 1, 4, 3, 3, 2, 4, 1, 2, 2, 6, 2, 5),
       abacus::mat4x4(1, 3, 3, 2, 1, 5, 2, 3, 3, 3, 1, 3, 3, 5, 2, 2));
 }
 

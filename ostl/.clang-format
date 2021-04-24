@@ -1,11 +1,12 @@
 AccessModifierOffset: -4
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Right
-AlignOperands: true
+AlignOperands: Align
 AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
@@ -18,11 +19,12 @@ AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 
-AlwaysBreakTemplateDeclarations: true
+AlwaysBreakTemplateDeclarations: Yes
 
 BinPackArguments: false
 BinPackParameters: false
 
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass: true
@@ -111,3 +113,8 @@ Standard: Latest
 
 UseCRLF: false
 UseTab: Never
+
+PenaltyBreakAssignment: 100
+PenaltyBreakBeforeFirstCallParameter: 40
+PenaltyExcessCharacter: 1
+PenaltyReturnTypeOnItsOwnLine: 100

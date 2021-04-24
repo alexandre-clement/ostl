@@ -103,8 +103,8 @@ namespace caldera
         void pick_physical_device();
         [[nodiscard]] physical_device_evaluation evaluate_physical_device_properties(const vk::PhysicalDevice&) const;
         [[nodiscard]] queue_family_indices find_queue_families(const vk::PhysicalDevice&) const;
-        [[nodiscard]] physical_device_extensions
-          look_for_gpu_extensions(const vk::PhysicalDevice&, const std::vector<std::string>&) const;
+        [[nodiscard]] physical_device_extensions look_for_gpu_extensions(const vk::PhysicalDevice&,
+          const std::vector<std::string>&) const;
         [[nodiscard]] std::vector<std::string> get_available_gpu_extensions(const vk::PhysicalDevice&) const;
         [[nodiscard]] std::vector<std::string> get_required_gpu_extensions() const;
         [[nodiscard]] swap_chain_details query_swap_chain_support(const vk::PhysicalDevice&) const;

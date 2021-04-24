@@ -9,8 +9,7 @@
 
 namespace caldera
 {
-    const TBuiltInResource DefaultTBuiltInResource = {
-      .maxLights = 32,
+    const TBuiltInResource DefaultTBuiltInResource = {.maxLights = 32,
       .maxClipPlanes = 6,
       .maxTextureUnits = 32,
       .maxTextureCoords = 32,
@@ -126,8 +125,7 @@ namespace caldera
 
     physical_device_properties physical_device_evaluation::build() const
     {
-        return {
-          indices.graphics_family.value(),
+        return {indices.graphics_family.value(),
           indices.present_family.value(),
           {indices.graphics_family.value(), indices.present_family.value()},
           pde.extensions,
@@ -170,7 +168,7 @@ namespace caldera
 
         m_present_queue.waitIdle();
         for (auto [image_available, render_finished, in_flight] :
-             detail::zip(m_image_available_semaphores, m_render_finished_semaphores, m_in_flight_fences))
+          detail::zip(m_image_available_semaphores, m_render_finished_semaphores, m_in_flight_fences))
         {
             m_device.destroySemaphore(image_available);
             m_device.destroySemaphore(render_finished);
@@ -222,8 +220,7 @@ namespace caldera
         while (vk::Result::eTimeout == m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX))
             ;
 
-        auto [result, index] =
-          m_device.acquireNextImageKHR(m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr);
+        auto [result, index] = m_device.acquireNextImageKHR(m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr);
 
         if (in_flight_image(index))
         {
@@ -236,8 +233,10 @@ namespace caldera
         update_uniform_variables(index);
 
         vk::PipelineStageFlags wait_dst_stage_mask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-        vk::SubmitInfo submit_info = vk::SubmitInfo(
-          image_available_semaphore(), wait_dst_stage_mask, current_buffer(index), render_finished_semaphore());
+        vk::SubmitInfo submit_info = vk::SubmitInfo(image_available_semaphore(),
+          wait_dst_stage_mask,
+          current_buffer(index),
+          render_finished_semaphore());
 
         m_device.resetFences(in_flight_fence());
         m_graphics_queue.submit(submit_info, in_flight_fence());
@@ -355,17 +354,15 @@ namespace caldera
         return indices;
     }
 
-    physical_device_extensions vulkan::look_for_gpu_extensions(
-      const vk::PhysicalDevice& device,
+    physical_device_extensions vulkan::look_for_gpu_extensions(const vk::PhysicalDevice& device,
       const std::vector<std::string>& required_gpu_extensions) const
     {
         physical_device_extensions extensions;
         const std::vector<std::string> available_gpu_extensions = get_available_gpu_extensions(device);
         for (const auto& gpu_extension : required_gpu_extensions)
         {
-            if (
-              std::find(available_gpu_extensions.begin(), available_gpu_extensions.end(), gpu_extension) ==
-              available_gpu_extensions.end())
+            if (std::find(available_gpu_extensions.begin(), available_gpu_extensions.end(), gpu_extension)
+                == available_gpu_extensions.end())
             {
                 log.debug("{} misses extension {}", device.getProperties().deviceName, gpu_extension);
                 extensions.contains_all_required_extensions = false;
@@ -426,8 +423,8 @@ namespace caldera
             log.debug("\t{}", extension);
         }
 
-        auto vk_extensions = detail::map(
-          properties.extensions, std::function([](const std::string& s) -> const char* { return s.c_str(); }));
+        auto vk_extensions = detail::map(properties.extensions,
+          std::function([](const std::string& s) -> const char* { return s.c_str(); }));
 
         vk::PhysicalDeviceFeatures features = vk::PhysicalDeviceFeatures().setShaderFloat64(true);
 
@@ -460,9 +457,7 @@ namespace caldera
 
         vk::SwapchainCreateFlagsKHR flags = vk::SwapchainCreateFlagsKHR();
         std::uint32_t min_image_count = properties.surface_capabilities.minImageCount + 1u;
-        if (
-          properties.surface_capabilities.maxImageCount > 0u &&
-          min_image_count > properties.surface_capabilities.maxImageCount)
+        if (properties.surface_capabilities.maxImageCount > 0u && min_image_count > properties.surface_capabilities.maxImageCount)
         {
             min_image_count = properties.surface_capabilities.maxImageCount;
         }
@@ -499,14 +494,11 @@ namespace caldera
         log.debug("successfully created vulkan swap chain");
     }
 
-    vk::SurfaceFormatKHR
-      vulkan::choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR>& surface_formats) const
+    vk::SurfaceFormatKHR vulkan::choose_swap_surface_format(const std::vector<vk::SurfaceFormatKHR>& surface_formats) const
     {
         for (const auto& surface_format : surface_formats)
         {
-            if (
-              surface_format.format == vk::Format::eB8G8R8A8Unorm &&
-              surface_format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+            if (surface_format.format == vk::Format::eB8G8R8A8Unorm && surface_format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
             {
                 return surface_format;
             }
@@ -535,12 +527,10 @@ namespace caldera
         else
         {
             return {
-              std::clamp(
-                std::uint32_t(m_configuration.framebuffer.x),
+              std::clamp(std::uint32_t(m_configuration.framebuffer.x),
                 capabilities.minImageExtent.width,
                 capabilities.maxImageExtent.width),
-              std::clamp(
-                std::uint32_t(m_configuration.framebuffer.y),
+              std::clamp(std::uint32_t(m_configuration.framebuffer.y),
                 capabilities.minImageExtent.height,
                 capabilities.maxImageExtent.height),
             };
@@ -569,13 +559,13 @@ namespace caldera
 
         for (auto [image, image_view] : detail::zip(m_images, m_image_views))
         {
-            vk::ImageViewCreateInfo info =
-              vk::ImageViewCreateInfo()
-                .setImage(image)
-                .setViewType(vk::ImageViewType::e2D)
-                .setFormat(m_format)
-                .setComponents(vk::ComponentMapping())
-                .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+            vk::ImageViewCreateInfo info = vk::ImageViewCreateInfo()
+                                             .setImage(image)
+                                             .setViewType(vk::ImageViewType::e2D)
+                                             .setFormat(m_format)
+                                             .setComponents(vk::ComponentMapping())
+                                             .setSubresourceRange(
+                                               vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
 
             image_view = m_device.createImageView(info);
         }
@@ -597,33 +587,31 @@ namespace caldera
     {
         log.debug("creating vulkan render pass");
 
-        std::vector<vk::AttachmentDescription> color_attachments = {
-          vk::AttachmentDescription()
-            .setFlags(vk::AttachmentDescriptionFlags())
-            .setFormat(m_format)
-            .setSamples(vk::SampleCountFlagBits::e1)
-            .setLoadOp(vk::AttachmentLoadOp::eClear)
-            .setStoreOp(vk::AttachmentStoreOp::eStore)
-            .setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-            .setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-            .setInitialLayout(vk::ImageLayout::eUndefined)
-            .setFinalLayout(vk::ImageLayout::ePresentSrcKHR)};
+        std::vector<vk::AttachmentDescription> color_attachments = {vk::AttachmentDescription()
+                                                                      .setFlags(vk::AttachmentDescriptionFlags())
+                                                                      .setFormat(m_format)
+                                                                      .setSamples(vk::SampleCountFlagBits::e1)
+                                                                      .setLoadOp(vk::AttachmentLoadOp::eClear)
+                                                                      .setStoreOp(vk::AttachmentStoreOp::eStore)
+                                                                      .setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+                                                                      .setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+                                                                      .setInitialLayout(vk::ImageLayout::eUndefined)
+                                                                      .setFinalLayout(vk::ImageLayout::ePresentSrcKHR)};
 
         std::vector<vk::AttachmentReference> color_attachments_refs = {
           vk::AttachmentReference().setAttachment(0u).setLayout(vk::ImageLayout::eColorAttachmentOptimal)};
 
-        std::vector<vk::SubpassDescription> subpasses_descriptions = {
-          vk::SubpassDescription()
-            .setFlags(vk::SubpassDescriptionFlags())
-            .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-            .setInputAttachmentCount(0u)
-            .setPInputAttachments(nullptr)
-            .setColorAttachmentCount(color_attachments_refs.size())
-            .setPColorAttachments(color_attachments_refs.data())
-            .setPResolveAttachments(nullptr)
-            .setPDepthStencilAttachment(nullptr)
-            .setPreserveAttachmentCount(0u)
-            .setPResolveAttachments(nullptr)};
+        std::vector<vk::SubpassDescription> subpasses_descriptions = {vk::SubpassDescription()
+                                                                        .setFlags(vk::SubpassDescriptionFlags())
+                                                                        .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+                                                                        .setInputAttachmentCount(0u)
+                                                                        .setPInputAttachments(nullptr)
+                                                                        .setColorAttachmentCount(color_attachments_refs.size())
+                                                                        .setPColorAttachments(color_attachments_refs.data())
+                                                                        .setPResolveAttachments(nullptr)
+                                                                        .setPDepthStencilAttachment(nullptr)
+                                                                        .setPreserveAttachmentCount(0u)
+                                                                        .setPResolveAttachments(nullptr)};
 
         std::vector<vk::SubpassDependency> subpasses_dependencies = {
           vk::SubpassDependency()
@@ -704,19 +692,16 @@ namespace caldera
 
         for (auto [buffer, memory] : detail::zip(m_buffers, m_memory))
         {
-            vk::BufferCreateInfo buffer_info =
-              vk::BufferCreateInfo().setSize(m_buffer_size).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
+            vk::BufferCreateInfo buffer_info = vk::BufferCreateInfo().setSize(m_buffer_size).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 
             buffer = m_device.createBuffer(buffer_info);
 
             auto requirements = m_device.getBufferMemoryRequirements(buffer);
 
-            vk::MemoryAllocateInfo memory_info =
-              vk::MemoryAllocateInfo()
-                .setAllocationSize(requirements.size)
-                .setMemoryTypeIndex(find_memory_type(
-                  requirements.memoryTypeBits,
-                  vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
+            vk::MemoryAllocateInfo memory_info = vk::MemoryAllocateInfo()
+                                                   .setAllocationSize(requirements.size)
+                                                   .setMemoryTypeIndex(find_memory_type(requirements.memoryTypeBits,
+                                                     vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
 
             memory = m_device.allocateMemory(memory_info);
 
@@ -768,8 +753,7 @@ namespace caldera
 
         for (auto [buffer, descriptor_set, writer] : detail::zip(m_buffers, m_descriptor_sets, descriptor_writes))
         {
-            vk::DescriptorBufferInfo buffer_info =
-              vk::DescriptorBufferInfo().setBuffer(buffer).setOffset(0ul).setRange(m_buffer_size);
+            vk::DescriptorBufferInfo buffer_info = vk::DescriptorBufferInfo().setBuffer(buffer).setOffset(0ul).setRange(m_buffer_size);
 
             writer.setDstSet(descriptor_set)
               .setDstBinding(0u)
@@ -831,8 +815,7 @@ namespace caldera
             )");
         glslang::FinalizeProcess();
 
-        m_stages = {
-          {vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertex, "main"},
+        m_stages = {{vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertex, "main"},
           {vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragment, "main"}};
     }
 
@@ -848,22 +831,18 @@ namespace caldera
     {
         log.debug("creating vulkan graphics pipeline");
 
-        vk::PipelineVertexInputStateCreateInfo vertex_input = vk::PipelineVertexInputStateCreateInfo()
-                                                                .setVertexBindingDescriptionCount(0u)
-                                                                .setVertexAttributeDescriptionCount(0u);
+        vk::PipelineVertexInputStateCreateInfo vertex_input =
+          vk::PipelineVertexInputStateCreateInfo().setVertexBindingDescriptionCount(0u).setVertexAttributeDescriptionCount(0u);
 
-        vk::PipelineInputAssemblyStateCreateInfo assembly = vk::PipelineInputAssemblyStateCreateInfo()
-                                                              .setTopology(vk::PrimitiveTopology::eTriangleList)
-                                                              .setPrimitiveRestartEnable(VK_FALSE);
+        vk::PipelineInputAssemblyStateCreateInfo assembly =
+          vk::PipelineInputAssemblyStateCreateInfo().setTopology(vk::PrimitiveTopology::eTriangleList).setPrimitiveRestartEnable(VK_FALSE);
 
         vk::Viewport viewport = vk::Viewport(0.0f, 0.0f, m_extent.width, m_extent.height, 0, 1.0f);
         vk::Rect2D scissors(render_area());
 
-        vk::PipelineViewportStateCreateInfo viewport_state_info = vk::PipelineViewportStateCreateInfo()
-                                                                    .setViewportCount(1u)
-                                                                    .setPViewports(&viewport)
-                                                                    .setScissorCount(1u)
-                                                                    .setPScissors(&scissors);
+        vk::PipelineViewportStateCreateInfo viewport_state_info =
+          vk::PipelineViewportStateCreateInfo().setViewportCount(1u).setPViewports(&viewport).setScissorCount(1u).setPScissors(
+            &scissors);
 
         vk::PipelineRasterizationStateCreateInfo rasterizer = vk::PipelineRasterizationStateCreateInfo()
                                                                 .setFlags(vk::PipelineRasterizationStateCreateFlags())
@@ -884,8 +863,8 @@ namespace caldera
 
         std::vector<vk::PipelineColorBlendAttachmentState> color_blend_attachments = {
           vk::PipelineColorBlendAttachmentState().setBlendEnable(VK_FALSE).setColorWriteMask(
-            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB |
-            vk::ColorComponentFlagBits::eA)};
+            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB
+            | vk::ColorComponentFlagBits::eA)};
 
         vk::PipelineColorBlendStateCreateInfo color_blend_info = vk::PipelineColorBlendStateCreateInfo()
                                                                    .setFlags(vk::PipelineColorBlendStateCreateFlags())
@@ -1017,8 +996,7 @@ namespace caldera
 
         std::vector<vk::ClearValue> clear_colors = {vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f})};
 
-        for (auto [command_buffer, framebuffer, descriptor_set] :
-             detail::zip(m_command_buffers, m_framebuffers, m_descriptor_sets))
+        for (auto [command_buffer, framebuffer, descriptor_set] : detail::zip(m_command_buffers, m_framebuffers, m_descriptor_sets))
         {
             command_buffer.begin(vk::CommandBufferBeginInfo());
             {
@@ -1032,8 +1010,7 @@ namespace caldera
                 command_buffer.beginRenderPass(render_pass_info, vk::SubpassContents::eInline);
                 {
                     command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
-                    command_buffer.bindDescriptorSets(
-                      vk::PipelineBindPoint::eGraphics, m_layout, 0, descriptor_set, nullptr);
+                    command_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_layout, 0, descriptor_set, nullptr);
                     command_buffer.draw(3, 1, 0, 0);
                 }
                 command_buffer.endRenderPass();
@@ -1059,7 +1036,7 @@ namespace caldera
         m_render_finished_semaphores.resize(m_number_of_frames_in_flight);
         m_in_flight_fences.resize(m_number_of_frames_in_flight);
         for (auto [image_available, render_finished, in_flight] :
-             detail::zip(m_image_available_semaphores, m_render_finished_semaphores, m_in_flight_fences))
+          detail::zip(m_image_available_semaphores, m_render_finished_semaphores, m_in_flight_fences))
         {
             image_available = m_device.createSemaphore(vk::SemaphoreCreateInfo());
             render_finished = m_device.createSemaphore(vk::SemaphoreCreateInfo());

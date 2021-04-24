@@ -36,7 +36,6 @@ namespace detail
     template<typename function, typename... values_types>
     auto tuple_transform(function&& p_function, std::tuple<values_types...>& tuple)
     {
-        return tuple_transform_impl(
-          std::forward<function>(p_function), tuple, std::make_index_sequence<sizeof...(values_types)>());
+        return tuple_transform_impl(std::forward<function>(p_function), tuple, std::make_index_sequence<sizeof...(values_types)>());
     }
 }  // namespace detail

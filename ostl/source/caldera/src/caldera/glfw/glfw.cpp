@@ -8,12 +8,7 @@ namespace caldera
     {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        log.info(
-          "selected monitor '{}' : {}x{} at {} Hz",
-          glfwGetMonitorName(monitor),
-          mode->width,
-          mode->height,
-          mode->refreshRate);
+        log.info("selected monitor '{}' : {}x{} at {} Hz", glfwGetMonitorName(monitor), mode->width, mode->height, mode->refreshRate);
         m_window = glfwCreateWindow(mode->width, mode->height, m_title.c_str(), nullptr, nullptr);
 
         glfwGetWindowPos(m_window, &position.x, &position.y);
@@ -39,12 +34,7 @@ namespace caldera
     {
         GLFWmonitor* monitor = current_monitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        log.info(
-          "selected monitor '{}' : {}x{} at {} Hz",
-          glfwGetMonitorName(monitor),
-          mode->width,
-          mode->height,
-          mode->refreshRate);
+        log.info("selected monitor '{}' : {}x{} at {} Hz", glfwGetMonitorName(monitor), mode->width, mode->height, mode->refreshRate);
 
         if (!is_fullscreen())
         {
@@ -54,8 +44,7 @@ namespace caldera
         }
         else
         {
-            glfwSetWindowMonitor(
-              m_window,
+            glfwSetWindowMonitor(m_window,
               NULL,
               m_pre_fullscreen_position.x,
               m_pre_fullscreen_position.y,
@@ -94,14 +83,12 @@ namespace caldera
             const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
             abacus::ivec2 monitor_position;
             glfwGetMonitorPos(monitors[i], &monitor_position.x, &monitor_position.y);
-            int overlap = std::max(
-                            0,
-                            std::min(position.x + size.x, monitor_position.x + mode->width) -
-                              std::max(position.x, monitor_position.x)) *
-                          std::max(
-                            0,
-                            std::min(position.y + size.y, monitor_position.y + mode->height) -
-                              std::max(position.y, monitor_position.y));
+            int overlap = std::max(0,
+                            std::min(position.x + size.x, monitor_position.x + mode->width)
+                              - std::max(position.x, monitor_position.x))
+                          * std::max(0,
+                            std::min(position.y + size.y, monitor_position.y + mode->height)
+                              - std::max(position.y, monitor_position.y));
 
             if (overlap > best_overlap)
             {

@@ -1,8 +1,8 @@
 namespace abacus
 {
     template<class _scalar_type, index rows, index columns, template<class, index, index> class vector>
-    constexpr typename array<_scalar_type, rows, columns, vector>::scalar_ref
-      array<_scalar_type, rows, columns, vector>::at(index row, index column)
+    constexpr typename array<_scalar_type, rows, columns, vector>::scalar_ref array<_scalar_type, rows, columns, vector>::at(index row,
+      index column)
     {
         return data.at(row).at(column);
     }
@@ -21,8 +21,8 @@ namespace abacus
     }
 
     template<class _scalar_type, index columns, template<class, index, index> class vector>
-    constexpr typename array<_scalar_type, 1, columns, vector>::scalar_ref
-      array<_scalar_type, 1, columns, vector>::at(index row, index column)
+    constexpr typename array<_scalar_type, 1, columns, vector>::scalar_ref array<_scalar_type, 1, columns, vector>::at(index row,
+      index column)
     {
         if (row == 0)
         {
@@ -32,8 +32,8 @@ namespace abacus
     }
 
     template<class _scalar_type, index columns, template<class, index, index> class vector>
-    constexpr typename array<_scalar_type, 1, columns, vector>::scalar_const_ref
-      array<_scalar_type, 1, columns, vector>::at(index row, index column) const
+    constexpr typename array<_scalar_type, 1, columns, vector>::scalar_const_ref array<_scalar_type, 1, columns, vector>::at(index row,
+      index column) const
     {
         if (row == 0)
         {
@@ -49,15 +49,14 @@ namespace abacus
     }
 
     template<class scalar_type, index rows, index columns, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, rows, columns, vector>::scalar_ref
-      base<scalar_type, rows, columns, vector>::at(index r, index c)
+    constexpr typename base<scalar_type, rows, columns, vector>::scalar_ref base<scalar_type, rows, columns, vector>::at(index r, index c)
     {
         return data.at(r, c);
     }
 
     template<class scalar_type, index rows, index columns, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, rows, columns, vector>::scalar_const_ref
-      base<scalar_type, rows, columns, vector>::at(index r, index c) const
+    constexpr typename base<scalar_type, rows, columns, vector>::scalar_const_ref base<scalar_type, rows, columns, vector>::at(index r,
+      index c) const
     {
         return data.at(r, c);
     }
@@ -77,8 +76,7 @@ namespace abacus
     }
 
     template<class scalar_type, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, 1, 2, vector>::scalar_const_ref
-      base<scalar_type, 1, 2, vector>::at(index c) const
+    constexpr typename base<scalar_type, 1, 2, vector>::scalar_const_ref base<scalar_type, 1, 2, vector>::at(index c) const
     {
         if (c == 0)
         {
@@ -109,8 +107,7 @@ namespace abacus
     }
 
     template<class scalar_type, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, 1, 2, vector>::scalar_const_ref
-      base<scalar_type, 1, 2, vector>::at(index r, index c) const
+    constexpr typename base<scalar_type, 1, 2, vector>::scalar_const_ref base<scalar_type, 1, 2, vector>::at(index r, index c) const
     {
         if (r == 0)
         {
@@ -145,8 +142,7 @@ namespace abacus
     }
 
     template<class scalar_type, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, 1, 3, vector>::scalar_const_ref
-      base<scalar_type, 1, 3, vector>::at(index c) const
+    constexpr typename base<scalar_type, 1, 3, vector>::scalar_const_ref base<scalar_type, 1, 3, vector>::at(index c) const
     {
         if (c == 0)
         {
@@ -185,8 +181,7 @@ namespace abacus
     }
 
     template<class scalar_type, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, 1, 3, vector>::scalar_const_ref
-      base<scalar_type, 1, 3, vector>::at(index r, index c) const
+    constexpr typename base<scalar_type, 1, 3, vector>::scalar_const_ref base<scalar_type, 1, 3, vector>::at(index r, index c) const
     {
         if (r == 0)
         {
@@ -229,8 +224,7 @@ namespace abacus
     }
 
     template<class scalar_type, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, 1, 4, vector>::scalar_const_ref
-      base<scalar_type, 1, 4, vector>::at(index c) const
+    constexpr typename base<scalar_type, 1, 4, vector>::scalar_const_ref base<scalar_type, 1, 4, vector>::at(index c) const
     {
         if (c == 0)
         {
@@ -277,8 +271,7 @@ namespace abacus
     }
 
     template<class scalar_type, template<class, index, index> class vector>
-    constexpr typename base<scalar_type, 1, 4, vector>::scalar_const_ref
-      base<scalar_type, 1, 4, vector>::at(index r, index c) const
+    constexpr typename base<scalar_type, 1, 4, vector>::scalar_const_ref base<scalar_type, 1, 4, vector>::at(index r, index c) const
     {
         if (r == 0)
         {

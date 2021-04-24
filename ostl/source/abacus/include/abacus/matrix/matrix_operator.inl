@@ -183,8 +183,8 @@ namespace abacus
     }
 
     template<class scalar_type, index rows, index columns>
-    constexpr matrix<scalar_type, rows, columns>
-      operator+(const matrix<scalar_type, rows, columns>& a, const matrix<scalar_type, rows, columns>& b)
+    constexpr matrix<scalar_type, rows, columns> operator+(const matrix<scalar_type, rows, columns>& a,
+      const matrix<scalar_type, rows, columns>& b)
     {
         matrix<scalar_type, rows, columns> result;
         for (index row = 0; row < rows; ++row)
@@ -198,8 +198,8 @@ namespace abacus
     }
 
     template<class scalar_type, index rows, index columns>
-    constexpr matrix<scalar_type, rows, columns>
-      operator-(const matrix<scalar_type, rows, columns>& a, const matrix<scalar_type, rows, columns>& b)
+    constexpr matrix<scalar_type, rows, columns> operator-(const matrix<scalar_type, rows, columns>& a,
+      const matrix<scalar_type, rows, columns>& b)
     {
         matrix<scalar_type, rows, columns> result;
         for (index row = 0; row < rows; ++row)
@@ -213,8 +213,8 @@ namespace abacus
     }
 
     template<class scalar_type, index columns>
-    constexpr matrix<scalar_type, 1, columns>
-      operator*(const matrix<scalar_type, 1, columns>& a, const matrix<scalar_type, 1, columns>& b)
+    constexpr matrix<scalar_type, 1, columns> operator*(const matrix<scalar_type, 1, columns>& a,
+      const matrix<scalar_type, 1, columns>& b)
     {
         matrix<scalar_type, 1, columns> result;
         for (index column = 0; column < columns; ++column)
@@ -225,8 +225,8 @@ namespace abacus
     }
 
     template<class scalar_type, index rows, index columns, index result_columns>
-    constexpr matrix<scalar_type, rows, result_columns>
-      operator*(const matrix<scalar_type, rows, columns>& a, const matrix<scalar_type, columns, result_columns>& b)
+    constexpr matrix<scalar_type, rows, result_columns> operator*(const matrix<scalar_type, rows, columns>& a,
+      const matrix<scalar_type, columns, result_columns>& b)
     {
         matrix<scalar_type, rows, result_columns> result;
         for (index row = 0; row < rows; ++row)
@@ -243,8 +243,7 @@ namespace abacus
     }
 
     template<class _scalar_type, index _rows, index _columns>
-    constexpr matrix<_scalar_type, _rows, _columns>&
-      matrix<_scalar_type, _rows, _columns>::operator+=(const matrix& other)
+    constexpr matrix<_scalar_type, _rows, _columns>& matrix<_scalar_type, _rows, _columns>::operator+=(const matrix& other)
     {
         for (index row = 0; row < _rows; ++row)
         {
@@ -257,8 +256,7 @@ namespace abacus
     }
 
     template<class _scalar_type, index _rows, index _columns>
-    constexpr matrix<_scalar_type, _rows, _columns>&
-      matrix<_scalar_type, _rows, _columns>::operator-=(const matrix& other)
+    constexpr matrix<_scalar_type, _rows, _columns>& matrix<_scalar_type, _rows, _columns>::operator-=(const matrix& other)
     {
         for (index row = 0; row < _rows; ++row)
         {
