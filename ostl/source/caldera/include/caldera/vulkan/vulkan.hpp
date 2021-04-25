@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <detail/detail.hpp>
+#include <glass/glass.hpp>
 
 #include "configuration.hpp"
 #include "debugger.hpp"
@@ -87,12 +88,7 @@ namespace caldera
         vulkan(configuration);
         ~vulkan();
 
-        void change_fragment_shader(std::string);
-        template<class type>
-        void add_uniform(const type* p_variable)
-        {
-            m_uniform_variables.push_back({p_variable, sizeof(type)});
-        }
+        void update_shader(const glass::shader&);
 
         void render();
 
@@ -149,7 +145,6 @@ namespace caldera
         vk::Fence& in_flight_image(std::uint32_t);
         [[nodiscard]] const vk::Fence& in_flight_image(std::uint32_t) const;
         void create_fences();
-        [[nodiscard]] std::uint64_t uniform_data_size() const;
         void update_uniform_variables(std::uint32_t);
         void recreate_swap_chain();
 
@@ -157,6 +152,8 @@ namespace caldera
         debugger m_debugger;
         const std::string engine_name = "caldera";
         const std::uint32_t engine_version = caldera_version;
+
+        glass::shader m_shader;
 
         vk::Instance m_instance;
         vk::SurfaceKHR m_surface;
@@ -175,7 +172,6 @@ namespace caldera
         vk::DescriptorPool m_descriptor_pool;
         std::vector<vk::Buffer> m_buffers;
         std::vector<vk::DeviceMemory> m_memory;
-        vk::DeviceSize m_buffer_size = 256u;
         vk::DescriptorSetLayout m_descriptor_set_layout;
         std::vector<vk::DescriptorSet> m_descriptor_sets;
         vk::PipelineLayout m_layout;
@@ -189,8 +185,6 @@ namespace caldera
         std::vector<vk::Semaphore> m_render_finished_semaphores;
         std::vector<vk::Fence> m_in_flight_fences;
         std::vector<vk::Fence> m_images_in_flight;
-        using uniform_data = std::pair<const void*, std::uint64_t>;
-        std::vector<uniform_data> m_uniform_variables;
     };
 
     class caldera_exception : public std::exception

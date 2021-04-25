@@ -195,7 +195,7 @@ namespace caldera
         m_instance.destroy(nullptr);
     }
 
-    void vulkan::change_fragment_shader(std::string) {}
+    void vulkan::update_shader(const glass::shader& p_shader) { m_shader = p_shader; }
 
     void vulkan::render()
     {
@@ -692,7 +692,8 @@ namespace caldera
 
         for (auto [buffer, memory] : detail::zip(m_buffers, m_memory))
         {
-            vk::BufferCreateInfo buffer_info = vk::BufferCreateInfo().setSize(m_buffer_size).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
+            vk::BufferCreateInfo buffer_info =
+              vk::BufferCreateInfo().setSize(m_shader.uniform_data_size()).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 
             buffer = m_device.createBuffer(buffer_info);
 
@@ -753,7 +754,8 @@ namespace caldera
 
         for (auto [buffer, descriptor_set, writer] : detail::zip(m_buffers, m_descriptor_sets, descriptor_writes))
         {
-            vk::DescriptorBufferInfo buffer_info = vk::DescriptorBufferInfo().setBuffer(buffer).setOffset(0ul).setRange(m_buffer_size);
+            vk::DescriptorBufferInfo buffer_info = vk::DescriptorBufferInfo().setBuffer(buffer).setOffset(0ul).setRange(
+              m_shader.uniform_data_size());
 
             writer.setDstSet(descriptor_set)
               .setDstBinding(0u)
@@ -789,30 +791,8 @@ namespace caldera
     void vulkan::create_stages()
     {
         glslang::InitializeProcess();
-        vk::ShaderModule vertex = create_shader_module(vk::ShaderStageFlagBits::eVertex, R"(
-            #version 450
-
-            void main()
-            {
-                vec2 circumscribed_triangle = 4. * vec2(gl_VertexIndex & 1, (gl_VertexIndex >> 1) & 1) - 1.;
-                gl_Position = vec4(circumscribed_triangle, 0.0, 1.0);
-            }
-            )");
-        vk::ShaderModule fragment = create_shader_module(vk::ShaderStageFlagBits::eFragment, R"(
-            #version 450
-
-            layout(location = 0) out vec4 frag_color;
-
-			layout(binding = 0) uniform uniform_variables
-			{
-				ivec2 res;
-			};
-
-            void main()
-            {
-                frag_color = vec4(vec3(gl_FragCoord.xy / res, .4), 1.);
-            }
-            )");
+        vk::ShaderModule vertex = create_shader_module(vk::ShaderStageFlagBits::eVertex, m_shader.vertex());
+        vk::ShaderModule fragment = create_shader_module(vk::ShaderStageFlagBits::eFragment, m_shader.fragment());
         glslang::FinalizeProcess();
 
         m_stages = {{vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertex, "main"},
@@ -1065,29 +1045,18 @@ namespace caldera
 
     void vulkan::create_fences() { m_images_in_flight.resize(m_images.size(), nullptr); }
 
-    [[nodiscard]] std::uint64_t vulkan::uniform_data_size() const
-    {
-        std::uint64_t sum = 0ul;
-        for (const auto [_, size] : m_uniform_variables)
-        {
-            sum += size;
-        }
-        return sum;
-    }
-
     void vulkan::update_uniform_variables(std::uint32_t p_index)
     {
-        if (std::uint64_t total_size = uniform_data_size() > 0ul)
+        if (std::uint64_t total_size = m_shader.uniform_data_size() > 0ul)
         {
             char* data = static_cast<char*>(m_device.mapMemory(m_memory.at(p_index), 0ul, total_size));
             std::uint64_t offset = 0ul;
-            for (const auto& [address, size] : m_uniform_variables)
+            for (const auto& [address, size] : m_shader.list_uniform_data())
             {
                 memcpy(data + offset, address, size);
                 offset += size;
             }
             m_device.unmapMemory(m_memory.at(p_index));
-            m_uniform_variables.clear();
         }
     }
 

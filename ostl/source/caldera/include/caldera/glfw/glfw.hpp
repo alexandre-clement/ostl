@@ -25,6 +25,10 @@ namespace caldera
 
         void close() override;
 
+        [[nodiscard]] const abacus::ivec2& position() const override;
+        [[nodiscard]] const abacus::ivec2& size() const override;
+        [[nodiscard]] const abacus::ivec2& framebuffer() const override;
+
         void minimize() override;
         void maximize() override;
         void fullscreen() override;
@@ -39,15 +43,16 @@ namespace caldera
         [[nodiscard]] glfw_pointer handle();
         [[nodiscard]] glfw_pointer handle() const;
 
-        abacus::ivec2 position;
-        abacus::ivec2 size;
-        abacus::ivec2 framebuffer;
-
     private:
         [[nodiscard]] GLFWmonitor* current_monitor() const;
 
         glfw_pointer m_window;
         std::string m_title;
+
+        abacus::ivec2 m_position;
+        abacus::ivec2 m_size;
+        abacus::ivec2 m_framebuffer;
+
         abacus::ivec2 m_pre_fullscreen_position;
         abacus::ivec2 m_pre_fullscreen_size;
 

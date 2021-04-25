@@ -11,9 +11,9 @@ namespace caldera
         log.info("selected monitor '{}' : {}x{} at {} Hz", glfwGetMonitorName(monitor), mode->width, mode->height, mode->refreshRate);
         m_window = glfwCreateWindow(mode->width, mode->height, m_title.c_str(), nullptr, nullptr);
 
-        glfwGetWindowPos(m_window, &position.x, &position.y);
-        glfwGetWindowSize(m_window, &size.x, &size.y);
-        glfwGetFramebufferSize(m_window, &framebuffer.x, &framebuffer.y);
+        glfwGetWindowPos(m_window, &m_position.x, &m_position.y);
+        glfwGetWindowSize(m_window, &m_size.x, &m_size.y);
+        glfwGetFramebufferSize(m_window, &m_framebuffer.x, &m_framebuffer.y);
 
         glfwSetWindowUserPointer(m_window, this);
         glfwSetKeyCallback(m_window, key_callback);
@@ -25,6 +25,12 @@ namespace caldera
     [[nodiscard]] bool glfw::is_open() const { return !glfwWindowShouldClose(m_window); }
 
     void glfw::close() { glfwSetWindowShouldClose(m_window, GLFW_TRUE); }
+
+    const abacus::ivec2& glfw::position() const { return m_position; }
+
+    const abacus::ivec2& glfw::size() const { return m_size; }
+
+    const abacus::ivec2& glfw::framebuffer() const { return m_framebuffer; }
 
     void glfw::minimize() { glfwIconifyWindow(m_window); }
 
@@ -38,8 +44,8 @@ namespace caldera
 
         if (!is_fullscreen())
         {
-            m_pre_fullscreen_position = position;
-            m_pre_fullscreen_size = size;
+            m_pre_fullscreen_position = m_position;
+            m_pre_fullscreen_size = m_size;
             glfwSetWindowMonitor(m_window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
         }
         else
@@ -84,11 +90,11 @@ namespace caldera
             abacus::ivec2 monitor_position;
             glfwGetMonitorPos(monitors[i], &monitor_position.x, &monitor_position.y);
             int overlap = std::max(0,
-                            std::min(position.x + size.x, monitor_position.x + mode->width)
-                              - std::max(position.x, monitor_position.x))
+                            std::min(m_position.x + m_size.x, monitor_position.x + mode->width)
+                              - std::max(m_position.x, monitor_position.x))
                           * std::max(0,
-                            std::min(position.y + size.y, monitor_position.y + mode->height)
-                              - std::max(position.y, monitor_position.y));
+                            std::min(m_position.y + m_size.y, monitor_position.y + mode->height)
+                              - std::max(m_position.y, monitor_position.y));
 
             if (overlap > best_overlap)
             {
@@ -121,21 +127,21 @@ namespace caldera
     void glfw::window_pos_callback(GLFWwindow* p_window, int xpos, int ypos)
     {
         glfw& self = controller(p_window);
-        self.position.x = xpos;
-        self.position.y = ypos;
+        self.m_position.x = xpos;
+        self.m_position.y = ypos;
     }
 
     void glfw::window_size_callback(GLFWwindow* p_window, int p_width, int p_height)
     {
         glfw& self = controller(p_window);
-        self.size.x = p_width;
-        self.size.y = p_height;
+        self.m_size.x = p_width;
+        self.m_size.y = p_height;
     }
 
     void glfw::framebuffer_size_callback(GLFWwindow* p_window, int p_width, int p_height)
     {
         glfw& self = controller(p_window);
-        self.framebuffer.x = p_width;
-        self.framebuffer.y = p_height;
+        self.m_framebuffer.x = p_width;
+        self.m_framebuffer.y = p_height;
     }
 }  // namespace caldera

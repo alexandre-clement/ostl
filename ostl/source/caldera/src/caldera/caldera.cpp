@@ -29,17 +29,13 @@ namespace caldera
 
     caldera::caldera(std::string p_title, std::uint32_t p_version)
         : glfw(p_title)
-        , m_renderer({p_title, p_version, debug::none, required_extensions(), create_surface_maker(), create_idle(), framebuffer})
+        , m_renderer({p_title, p_version, debug::none, required_extensions(), create_surface_maker(), create_idle(), framebuffer()})
     {
     }
 
-    void caldera::draw() {}
+    void caldera::draw(const glass::shader& p_shader) { m_renderer.update_shader(p_shader); }
 
-    void caldera::render()
-    {
-        m_renderer.add_uniform(&size);
-        m_renderer.render();
-    }
+    void caldera::render() { m_renderer.render(); }
 
     std::vector<const char*> caldera::required_extensions() const
     {

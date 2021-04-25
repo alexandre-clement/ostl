@@ -17,7 +17,7 @@ namespace caldera
         caldera(std::string p_title, std::uint32_t);
         virtual ~caldera() = default;
 
-        void draw() override;
+        void draw(const glass::shader&) override;
 
         void render() override;
 

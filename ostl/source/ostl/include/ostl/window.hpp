@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <string>
 
@@ -48,6 +49,9 @@ namespace ostl
 
     private:
         std::unique_ptr<glass::base> m_glass;
+        glass::shader m_shader;
+        std::chrono::steady_clock::time_point m_start;
+        float m_elapsed = 0.f;
     };
 
     template<drawable object>
@@ -60,6 +64,5 @@ namespace ostl
     void window::draw(object obj, texture text)
     {
         drawer<object>::draw(obj, text);
-        m_glass->draw();
     }
 }  // namespace ostl
