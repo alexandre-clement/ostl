@@ -28,6 +28,7 @@ namespace caldera
         [[nodiscard]] const abacus::ivec2& position() const override;
         [[nodiscard]] const abacus::ivec2& size() const override;
         [[nodiscard]] const abacus::ivec2& framebuffer() const override;
+        [[nodiscard]] const int& refresh_rate() const override;
 
         void minimize() override;
         void maximize() override;
@@ -52,6 +53,7 @@ namespace caldera
         abacus::ivec2 m_position;
         abacus::ivec2 m_size;
         abacus::ivec2 m_framebuffer;
+        int m_refresh_rate;
 
         abacus::ivec2 m_pre_fullscreen_position;
         abacus::ivec2 m_pre_fullscreen_size;

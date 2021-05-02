@@ -33,7 +33,7 @@ namespace glass
             {
                 vec2 position = .5 + .5 * (-res + 2. * gl_FragCoord.xy) / min(res.x, res.y);
                 vec2 blue_center = .5 + .5 * sin(vec2(1.4142135623730951 * time, 0.6931471805599453 * time));
-                frag_color = vec4(vec3(position, 1 - length(position - blue_center)), 1.);
+                frag_color = vec4(vec3(position, pow(1.01 - .5*length(position - blue_center), 16)), 1.);
             }
         )";
     }

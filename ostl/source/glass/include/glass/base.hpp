@@ -23,6 +23,7 @@ namespace glass
         [[nodiscard]] virtual const abacus::ivec2& position() const = 0;
         [[nodiscard]] virtual const abacus::ivec2& size() const = 0;
         [[nodiscard]] virtual const abacus::ivec2& framebuffer() const = 0;
+        [[nodiscard]] virtual const int& refresh_rate() const = 0;
 
         virtual void minimize() = 0;
         virtual void maximize() = 0;

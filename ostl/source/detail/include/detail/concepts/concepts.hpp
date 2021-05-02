@@ -14,4 +14,7 @@ namespace detail
         i.begin();
         i.end();
     };
+
+    template<class t>
+    concept arithmetic = std::is_arithmetic_v<t>;
 }  // namespace detail

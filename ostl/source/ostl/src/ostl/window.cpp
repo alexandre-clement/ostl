@@ -32,10 +32,38 @@ namespace ostl
 
     void window::render()
     {
-        auto now = std::chrono::high_resolution_clock::now();
-        m_elapsed = std::chrono::duration<float, std::chrono::seconds::period>(now - m_start).count();
-        m_glass->render();
+        if (!vsync_enabled()) [[likely]]
+        {
+            auto now = std::chrono::high_resolution_clock::now();
+            m_elapsed = std::chrono::duration<float, std::chrono::seconds::period>(now - m_start).count();
+            m_glass->render();
+        }
+        else [[unlikely]]
+        {
+            m_stopwatch.wait_vertical_synchronisation(m_framerate);
+
+            auto now = std::chrono::high_resolution_clock::now();
+            m_elapsed = std::chrono::duration<float, std::chrono::seconds::period>(now - m_start).count();
+
+            m_stopwatch.start_rendering();
+            m_glass->render();
+            m_stopwatch.finished_rendering();
+        }
     }
+
+    const int& window::monitor_refresh_rate() const { return m_glass->refresh_rate(); }
+
+    void window::enable_vsync() { set_framerate(m_glass->refresh_rate()); }
+    void window::disable_vsync() { unset_framerate(); }
+
+    void window::toggle_vsync() { vsync_enabled() ? disable_vsync() : enable_vsync(); }
+
+    bool window::vsync_enabled() const { return m_framerate > 0;}
+
+    void window::set_framerate(const int p_framerate) { m_framerate = p_framerate;}
+    void window::unset_framerate() { m_framerate = 0; }
+
+    int window::framerate() const { return m_framerate; }
 
     void window::set_key_callback(ostl::keyboard::callback kc) { m_glass->event_handler.use_listener(kc); }
 }  // namespace ostl

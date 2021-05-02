@@ -14,6 +14,7 @@ namespace caldera
         glfwGetWindowPos(m_window, &m_position.x, &m_position.y);
         glfwGetWindowSize(m_window, &m_size.x, &m_size.y);
         glfwGetFramebufferSize(m_window, &m_framebuffer.x, &m_framebuffer.y);
+        m_refresh_rate = mode->refreshRate;
 
         glfwSetWindowUserPointer(m_window, this);
         glfwSetKeyCallback(m_window, key_callback);
@@ -31,6 +32,8 @@ namespace caldera
     const abacus::ivec2& glfw::size() const { return m_size; }
 
     const abacus::ivec2& glfw::framebuffer() const { return m_framebuffer; }
+
+    const int& glfw::refresh_rate() const { return m_refresh_rate; }
 
     void glfw::minimize() { glfwIconifyWindow(m_window); }
 
@@ -129,6 +132,10 @@ namespace caldera
         glfw& self = controller(p_window);
         self.m_position.x = xpos;
         self.m_position.y = ypos;
+
+        GLFWmonitor* monitor = self.current_monitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        self.m_refresh_rate = mode->refreshRate;
     }
 
     void glfw::window_size_callback(GLFWwindow* p_window, int p_width, int p_height)

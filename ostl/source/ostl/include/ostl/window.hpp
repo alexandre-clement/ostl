@@ -8,6 +8,7 @@
 
 #include "drawer.hpp"
 #include "event.hpp"
+#include "stopwatch.hpp"
 #include "texture.hpp"
 #include "texture/no_texture.hpp"
 
@@ -45,6 +46,15 @@ namespace ostl
 
         void render();
 
+        [[nodiscard]] const int& monitor_refresh_rate() const;
+        void enable_vsync();
+        void disable_vsync();
+        void toggle_vsync();
+        [[nodiscard]] inline bool vsync_enabled() const;
+        void set_framerate(const int);
+        void unset_framerate();
+        [[nodiscard]] int framerate() const;
+
         void set_key_callback(ostl::keyboard::callback kc);
 
     private:
@@ -52,6 +62,8 @@ namespace ostl
         glass::shader m_shader;
         std::chrono::steady_clock::time_point m_start;
         float m_elapsed = 0.f;
+        int m_framerate = 0;
+        stopwatch m_stopwatch;
     };
 
     template<drawable object>
