@@ -12,9 +12,11 @@ namespace ostl
         void finished_rendering();
         double rendering_time();
 
+        using clock = std::chrono::high_resolution_clock;
+        using time_point = clock::time_point;
+        [[nodiscard]] time_point now() const;
+
     private:
-        using time_point = std::chrono::steady_clock::time_point;
-        time_point now();
         double elapsed();
 
         time_point m_start_rendering;

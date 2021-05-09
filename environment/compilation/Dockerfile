@@ -9,7 +9,6 @@ RUN export DEBIAN_FRONTEND=noninteractive  \
         lsb-release \
         apt-utils \
         software-properties-common \
-        cmake \
         make \
         git \
         build-essential \
@@ -24,7 +23,7 @@ RUN export DEBIAN_FRONTEND=noninteractive  \
         libglu1-mesa-dev \
     && add-apt-repository ppa:ubuntu-toolchain-r/test \
     && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null \
-    && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
+    && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main' \
     && readonly DEBIAN_PACKAGES="g++-10" \
     && readonly CLANG_PACKAGES="11" \
     && wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add - \
@@ -32,6 +31,7 @@ RUN export DEBIAN_FRONTEND=noninteractive  \
     && apt-get update \
     && apt-get upgrade -y \
     && apt install -y \
+        cmake \
         g++-10 \
         vulkan-sdk \
     && wget https://apt.llvm.org/llvm.sh \

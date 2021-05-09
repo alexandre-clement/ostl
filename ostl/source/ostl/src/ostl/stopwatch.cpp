@@ -17,7 +17,7 @@ namespace ostl
         return std::chrono::duration<double, std::chrono::seconds::period>(m_finished_rendering - m_start_rendering).count();
     }
 
-    stopwatch::time_point stopwatch::now() { return std::chrono::high_resolution_clock::now(); }
+    stopwatch::time_point stopwatch::now() const { return clock::now(); }
 
     double stopwatch::elapsed()
     {

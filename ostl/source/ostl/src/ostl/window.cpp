@@ -9,7 +9,7 @@ namespace ostl
 
     window::window(std::string p_title)
         : m_glass(std::make_unique<caldera::caldera>(p_title))
-        , m_start(std::chrono::steady_clock::now())
+        , m_start(m_stopwatch.now())
     {
         m_shader.add_uniform(&m_glass->size());
         m_shader.add_uniform(&m_elapsed);

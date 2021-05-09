@@ -30,7 +30,7 @@ namespace glass
         virtual void fullscreen() = 0;
         virtual void restore() = 0;
 
-        virtual [[nodiscard]] bool is_fullscreen() const = 0;
+        [[nodiscard]] virtual bool is_fullscreen() const = 0;
 
         virtual void poll_events() = 0;
         virtual void draw(const shader&) = 0;

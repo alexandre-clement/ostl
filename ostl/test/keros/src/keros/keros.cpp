@@ -4,8 +4,9 @@
 
 TEST(keros, simple_main)
 {
-    keros::file<keros::default_model<std::shared_ptr>> f;
-    keros::glsl_exporter<keros::default_model<std::shared_ptr>> e;
+    using model = keros::default_model<std::shared_ptr>;
+    keros::file<model> f;
+    keros::glsl_exporter<model> e;
     e.scan(f);
 
     keros::writer<keros::stage::vertex> writer;
