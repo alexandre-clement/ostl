@@ -1,0 +1,10 @@
+.gitignore
+.dockerignore
+ostl/CMakeSettings.json
+
+docker-compose.yml
+environment/
+
+out/
+ostl/.vs
+ostl/out/
