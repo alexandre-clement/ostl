@@ -220,7 +220,7 @@ namespace caldera
         while (vk::Result::eTimeout == m_device.waitForFences(in_flight_fence(), VK_TRUE, UINT64_MAX))
             ;
 
-        auto [result, index] = m_device.acquireNextImageKHR(m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr);
+        auto index = m_device.acquireNextImageKHR(m_swap_chain, UINT64_MAX, image_available_semaphore(), nullptr).value;
 
         if (in_flight_image(index))
         {
@@ -243,12 +243,7 @@ namespace caldera
 
         vk::PresentInfoKHR present_info = vk::PresentInfoKHR(render_finished_semaphore(), m_swap_chain, index);
 
-        result = m_present_queue.presentKHR(present_info);
-
-        if (result == vk::Result::eSuboptimalKHR)
-        {
-            recreate_swap_chain();
-        }
+        m_present_queue.presentKHR(present_info);
 
         next_frame();
     }
@@ -288,7 +283,7 @@ namespace caldera
     void vulkan::pick_physical_device()
     {
         log.info("selecting the best gpu available");
-        auto devices = m_instance.enumeratePhysicalDevices();
+        const auto devices = m_instance.enumeratePhysicalDevices();
         physical_device_evaluation current_evaluation, best_evaluation;
         log.debug("{} gpu found:", devices.size());
         for (const auto& device : devices)
@@ -341,8 +336,7 @@ namespace caldera
             {
                 indices.graphics_family = index;
             }
-            auto supported = device.getSurfaceSupportKHR(index, m_surface);
-            if (supported)
+            if (device.getSurfaceSupportKHR(index, m_surface))
             {
                 indices.present_family = index;
             }
@@ -357,7 +351,7 @@ namespace caldera
     physical_device_extensions vulkan::look_for_gpu_extensions(const vk::PhysicalDevice& device,
       const std::vector<std::string>& required_gpu_extensions) const
     {
-        physical_device_extensions extensions;
+        physical_device_extensions pde;
         const std::vector<std::string> available_gpu_extensions = get_available_gpu_extensions(device);
         for (const auto& gpu_extension : required_gpu_extensions)
         {
@@ -365,20 +359,20 @@ namespace caldera
                 == available_gpu_extensions.end())
             {
                 log.debug("{} misses extension {}", device.getProperties().deviceName, gpu_extension);
-                extensions.contains_all_required_extensions = false;
+                pde.contains_all_required_extensions = false;
             }
             else
             {
-                extensions.extensions.push_back(gpu_extension);
+                pde.extensions.emplace_back(gpu_extension);
             }
         }
-        return extensions;
+        return pde;
     }
 
     std::vector<std::string> vulkan::get_available_gpu_extensions(const vk::PhysicalDevice& device) const
     {
         auto properties = device.enumerateDeviceExtensionProperties();
-        std::vector<std::string> available_gpu_extensions(properties.size());
+        std::vector<std::string> available_gpu_extensions{properties.size()};
         for (const auto& extension : properties)
         {
             available_gpu_extensions.push_back(extension.extensionName);
@@ -386,11 +380,7 @@ namespace caldera
         return available_gpu_extensions;
     }
 
-    std::vector<std::string> vulkan::get_required_gpu_extensions() const
-    {
-        const std::vector<std::string> required_gpu_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-        return required_gpu_extensions;
-    }
+    std::vector<std::string> vulkan::get_required_gpu_extensions() const { return {VK_KHR_SWAPCHAIN_EXTENSION_NAME}; }
 
     swap_chain_details vulkan::query_swap_chain_support(const vk::PhysicalDevice& device) const
     {
@@ -445,7 +435,7 @@ namespace caldera
 
     void vulkan::create_command_pool()
     {
-        vk::CommandPoolCreateInfo info(vk::CommandPoolCreateFlags(), gpu_properties().graphics_family);
+        vk::CommandPoolCreateInfo info{vk::CommandPoolCreateFlags(), gpu_properties().graphics_family};
 
         m_command_pool = m_device.createCommandPool(info);
     }
@@ -672,7 +662,7 @@ namespace caldera
 
     void vulkan::create_descriptor_pool()
     {
-        std::vector<vk::DescriptorPoolSize> pool_sizes = {
+        std::vector<vk::DescriptorPoolSize> pool_sizes{
           vk::DescriptorPoolSize().setType(vk::DescriptorType::eUniformBuffer).setDescriptorCount(m_images.size())};
 
         vk::DescriptorPoolCreateInfo info = vk::DescriptorPoolCreateInfo()

@@ -9,15 +9,15 @@ namespace detail
 
     enum class qualifier
     {
-        const_,
-        not_const_
+        constant,
+        not_constant
     };
 
-    template<class visitables_pack, qualifier _qualifier = qualifier::not_const_>
+    template<class visitables_pack, qualifier _qualifier = qualifier::not_constant>
     class visitor;
 
     template<class visited>
-    class visitor<pack<visited>, qualifier::not_const_>
+    class visitor<pack<visited>, qualifier::not_constant>
     {
     public:
         virtual ~visitor() = default;
@@ -29,7 +29,7 @@ namespace detail
     };
 
     template<class visited>
-    class visitor<pack<visited>, qualifier::const_>
+    class visitor<pack<visited>, qualifier::constant>
     {
     public:
         virtual ~visitor() = default;
@@ -52,16 +52,16 @@ namespace detail
         using visitor<pack<tails...>, _qualifier>::visit;
     };
 
-    template<class visitables_pack, qualifier _qualifier = qualifier::not_const_>
+    template<class visitables_pack, qualifier _qualifier = qualifier::not_constant>
     class visitable;
 
     template<class visitables_pack>
-    class visitable<visitables_pack, qualifier::not_const_>
+    class visitable<visitables_pack, qualifier::not_constant>
     {
     public:
         virtual ~visitable() = default;
 
-        using guest_type = visitor<visitables_pack, qualifier::not_const_>;
+        using guest_type = visitor<visitables_pack, qualifier::not_constant>;
         using guest_ref = guest_type&;
 
         virtual void accept(guest_ref) = 0;
@@ -74,12 +74,12 @@ namespace detail
     };
 
     template<class visitables_pack>
-    class visitable<visitables_pack, qualifier::const_>
+    class visitable<visitables_pack, qualifier::constant>
     {
     public:
         virtual ~visitable() = default;
 
-        using guest_type = visitor<visitables_pack, qualifier::const_>;
+        using guest_type = visitor<visitables_pack, qualifier::constant>;
         using guest_ref = guest_type&;
 
         virtual void accept(guest_ref) const = 0;
@@ -90,9 +90,8 @@ namespace detail
             guest.visit(host);
         }
     };
+}  // namespace detail
 
 #define make_visitable                                                                                                 \
 public:                                                                                                                \
     void accept(guest_ref guest) const override { return this->pay_visit(*this, guest); }
-
-}  // namespace detail

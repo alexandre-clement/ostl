@@ -16,7 +16,7 @@ class sibling;
 
 using visitables = detail::pack<grand_father, mother, aunt, son, sibling>;
 
-class grand_father : public virtual detail::visitable<visitables, detail::qualifier::const_>
+class grand_father : public virtual detail::visitable<visitables, detail::qualifier::constant>
 {
     make_visitable
 };
@@ -72,10 +72,10 @@ inline path_taken_cartesian_product& operator|=(path_taken_cartesian_product& a,
     return a = a | b;
 }
 
-class a : public detail::visitor<visitables, detail::qualifier::const_>
+class a : public detail::visitor<visitables, detail::qualifier::constant>
 {
 public:
-    using detail::visitor<visitables, detail::qualifier::const_>::visit;
+    using detail::visitor<visitables, detail::qualifier::constant>::visit;
 
     void visit(const grand_father&) override {}
 
@@ -88,7 +88,7 @@ public:
     void visit(const sibling&) override {}
 };
 
-class b : public detail::visitor<visitables, detail::qualifier::const_>
+class b : public detail::visitor<visitables, detail::qualifier::constant>
 {
 public:
     void visit(const grand_father&) override {}

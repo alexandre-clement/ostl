@@ -7,7 +7,7 @@ int main()
     detail::set_level(detail::level::level_enum::trace);
     ostl::window window("simple window");
     // window.enable_vsync();
-    window.set_framerate(240);
+    window.set_framerate(window.monitor_refresh_rate() * 2);
 
     window.set_key_callback([&](ostl::keyboard::event key) {
         if (key.keycode == ostl::keyboard::key::escape && key.key_action == ostl::keyboard::action::press)

@@ -58,9 +58,9 @@ namespace ostl
 
     void window::toggle_vsync() { vsync_enabled() ? disable_vsync() : enable_vsync(); }
 
-    bool window::vsync_enabled() const { return m_framerate > 0;}
+    bool window::vsync_enabled() const { return m_framerate > 0; }
 
-    void window::set_framerate(const int p_framerate) { m_framerate = p_framerate;}
+    void window::set_framerate(const int p_framerate) { m_framerate = p_framerate; }
     void window::unset_framerate() { m_framerate = 0; }
 
     int window::framerate() const { return m_framerate; }

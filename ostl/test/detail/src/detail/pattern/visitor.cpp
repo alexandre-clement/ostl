@@ -32,7 +32,7 @@ path_taken operator|(path_taken a, path_taken b)
 
 path_taken& operator|=(path_taken& a, path_taken b) { return a = a | b; }
 
-class root : public virtual detail::visitable<visitables, detail::qualifier::const_>
+class root : public virtual detail::visitable<visitables, detail::qualifier::constant>
 {
     make_visitable
 };
@@ -47,7 +47,7 @@ class leaf : public intermediate_node
     make_visitable
 };
 
-class printer : public detail::visitor<visitables, detail::qualifier::const_>
+class printer : public detail::visitor<visitables, detail::qualifier::constant>
 {
 public:
     void visit(const root&) override { visited |= path_taken::visit_root; }

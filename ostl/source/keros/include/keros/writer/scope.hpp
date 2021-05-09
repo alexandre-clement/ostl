@@ -5,7 +5,7 @@
 
 namespace keros
 {
-    template<stage t, way io>
+    template<stage, way>
     class scope;
 
     template<>
