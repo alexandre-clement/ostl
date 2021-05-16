@@ -1,3 +1,4 @@
+#include <iostream>
 
 namespace abacus
 {
@@ -58,14 +59,14 @@ namespace abacus
         }
         else
         {
-            os << "mat" << _rows << 'x' << _columns << "(\n\t";
+            os << "mat" << _rows << 'x' << _columns << "(\n    ";
             for (index row = 0; row < _rows - 1; ++row)
             {
                 for (index column = 0; column < _columns - 1; ++column)
                 {
                     os << m.at(row, column) << ", ";
                 }
-                os << m.at(row, _columns - 1) << "\n\t";
+                os << m.at(row, _columns - 1) << "\n    ";
             }
             for (index column = 0; column < _columns - 1; ++column)
             {
