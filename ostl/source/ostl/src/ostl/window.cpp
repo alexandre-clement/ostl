@@ -13,7 +13,6 @@ namespace ostl
     {
         m_shader.add_uniform(&m_glass->size());
         m_shader.add_uniform(&m_elapsed);
-
         m_glass->draw(m_shader);
     }
 

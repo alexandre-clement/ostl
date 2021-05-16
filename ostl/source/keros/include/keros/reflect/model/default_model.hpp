@@ -1,6 +1,7 @@
 #pragma once
 
 #include "element.hpp"
+#include "keros/reflect/code/code.hpp"
 #include "keros/reflect/declaration/declaration.hpp"
 
 namespace keros
@@ -9,5 +10,7 @@ namespace keros
     using default_model = model<pointer,
       element,
       // code
+      expression,
+      // declaration
       file>;
 }

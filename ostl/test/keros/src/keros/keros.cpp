@@ -10,7 +10,7 @@ TEST(keros, simple_main)
     e.scan(f);
 
     keros::writer<keros::stage::vertex> writer;
-    writer.implement_main([&]() { writer.out.gl_position = keros::vec4(0, 1, 0, 1); });
+    writer.implement_main([&]() { writer.out.position = keros::vec4(0, 1, 0, 1); });
     auto shader = writer.to_glsl();
     ASSERT_EQ(R"(#version 450
 

@@ -5,7 +5,7 @@
 namespace keros
 {
     template<complete_model base>
-    class file : public element<base>
+    class file final : public element<base>
     {
     public:
         file() = default;

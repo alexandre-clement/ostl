@@ -12,13 +12,13 @@ namespace keros
     class scope<stage::vertex, way::in>
     {
     public:
-        int gl_vertex_index;
+        int vertex_index;
     };
 
     template<>
     class scope<stage::vertex, way::out>
     {
     public:
-        vec4 gl_position;
+        vec4 position;
     };
 }  // namespace keros

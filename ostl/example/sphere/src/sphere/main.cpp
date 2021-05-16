@@ -23,9 +23,12 @@ int main()
         }
     });
 
+    ostl::sphere s;
+
     while (window.is_open())
     {
         window.poll_events();
+        window.draw(s);
         window.render();
     }
 
