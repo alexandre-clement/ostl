@@ -116,6 +116,14 @@ namespace abacus
         constexpr scalar_const_ref at(index, index) const;
 
         scalar_type x, y;
+
+#if defined(_MSC_VER) || defined(__clang__)
+    #define swizzle(name, ...)                                                                                         \
+        vector<scalar_type, 1, 2> _##name() const { return vector<scalar_type, 1, 2>(__VA_ARGS__); }                   \
+        __declspec(property(get = _##name)) vector<scalar_type, 1, 2> name;
+
+        swizzle(xx, x, x) swizzle(xy, x, y) swizzle(yx, y, x) swizzle(yy, y, y)
+#endif
     };
 
 #ifdef abacus_matrix_type_aligned

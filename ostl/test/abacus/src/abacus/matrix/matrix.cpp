@@ -622,3 +622,12 @@ TEST(matrix, alignment)
     EXPECT_EQ(16 * sizeof(float), sizeof(abacus::mat4x3));
     EXPECT_EQ(16 * sizeof(float), sizeof(abacus::mat4x4));
 }
+
+TEST(matrix, property)
+{
+    abacus::vec2 v(10, 20);
+    EXPECT_EQ(abacus::vec2(10, 10), v.xx);
+    EXPECT_EQ(abacus::vec2(10, 20), v.xy);
+    EXPECT_EQ(abacus::vec2(20, 10), v.yx);
+    EXPECT_EQ(abacus::vec2(20, 20), v.yy);
+}
