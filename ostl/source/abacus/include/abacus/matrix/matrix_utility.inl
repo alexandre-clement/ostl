@@ -50,29 +50,32 @@ namespace abacus
     {
         if constexpr (_rows == 1)
         {
-            os << "vec" << _columns << '(';
-            for (index column = 0; column < _columns - 1; ++column)
-            {
-                os << m.at(column) << ", ";
-            }
-            os << m.at(_columns - 1) << ')';
+            os << "vec" << _columns;
         }
         else
         {
-            os << "mat" << _rows << 'x' << _columns << "(\n    ";
-            for (index row = 0; row < _rows - 1; ++row)
+            os << "mat" << _rows << 'x' << _columns << '{';
+        }
+        for (index row = 0; row < _rows; ++row)
+        {
+            os << '(';
+            for (index column = 0; column < _columns; ++column)
             {
-                for (index column = 0; column < _columns - 1; ++column)
+                os << m.at(row, column);
+                if (column < _columns - 1)
                 {
-                    os << m.at(row, column) << ", ";
+                    os << ", ";
                 }
-                os << m.at(row, _columns - 1) << "\n    ";
             }
-            for (index column = 0; column < _columns - 1; ++column)
+            os << ')';
+            if (row < _rows - 1)
             {
-                os << m.at(_rows - 1, column) << ", ";
+                os << ' ';
             }
-            os << m.at(_rows - 1, _columns - 1) << "\n)\n";
+        }
+        if constexpr (_rows > 1)
+        {
+            os << '}';
         }
         return os;
     }

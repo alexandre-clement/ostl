@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #define abacus_matrix_type_aligned
+#include <sstream>
+
 #include <abacus/abacus.hpp>
 
 template<class matrix>
@@ -621,4 +623,16 @@ TEST(matrix, alignment)
     EXPECT_EQ(8 * sizeof(float), sizeof(abacus::mat4x2));
     EXPECT_EQ(16 * sizeof(float), sizeof(abacus::mat4x3));
     EXPECT_EQ(16 * sizeof(float), sizeof(abacus::mat4x4));
+}
+
+TEST(matrix, to_iostream)
+{
+    abacus::mat4x3 m4x3;
+    EXPECT_EQ("mat4x3{(0, 0, 0) (0, 0, 0) (0, 0, 0) (0, 0, 0)}", (std::stringstream() << m4x3).str());
+    abacus::vec2 v2(10, 20);
+    EXPECT_EQ("vec2(10, 20)", (std::stringstream() << v2).str());
+    abacus::vec2 v3(3, 5);
+    EXPECT_EQ("vec2(3, 5)", (std::stringstream() << v3).str());
+    abacus::mat3x3 m3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    EXPECT_EQ("mat3x3{(1, 2, 3) (4, 5, 6) (7, 8, 9)}", (std::stringstream() << m3x3).str());
 }
