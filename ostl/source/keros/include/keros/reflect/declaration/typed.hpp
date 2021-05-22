@@ -11,7 +11,7 @@ namespace keros
     class typed : public virtual element<base>
     {
     public:
-        typed() = default;
+        typed(type<base> p_type) : typeof(std::move(p_type)) {}
         typed(const typed&) = default;
         typed(typed&&) noexcept = default;
         typed& operator=(const typed&) = default;
@@ -20,7 +20,7 @@ namespace keros
 
         using guest_ref = typename base::guest_ref;
 
-        type typeof;
+        type<base> typeof;
 
         make_visitable
     };
