@@ -1,5 +1,7 @@
 #include "caldera/glfw/glfw.hpp"
 
+#include <bit>
+
 #include "caldera/glfw/glfw_utils.hpp"
 
 namespace caldera
@@ -109,10 +111,7 @@ namespace caldera
         return best_monitor;
     }
 
-    glfw& glfw::controller(glfw_pointer p_window)
-    {
-        return *reinterpret_cast<glfw*>(glfwGetWindowUserPointer(p_window));
-    }
+    glfw& glfw::controller(glfw_pointer p_window) { return *std::bit_cast<glfw*>(glfwGetWindowUserPointer(p_window)); }
 
     void glfw::key_callback(glfw_pointer p_window, int key, int, int action, int)
     {
