@@ -51,4 +51,10 @@ namespace keros
     overload(glsl_exporter, element) {}
 
     overload(glsl_exporter, file) {}
+
+    overload(glsl_exporter, function)
+    {
+        this->out << host.typeof->name << ' ' << host.name << this->parenthesis() << new_line
+                  << this->braces(std::array<element<base>, 0>()) << new_line;
+    }
 }  // namespace keros

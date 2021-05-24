@@ -1,9 +1,8 @@
 #pragma once
 
 #include "../model/element.hpp"
+#include "../model/utility.hpp"
 #include "type.hpp"
-
-#define property
 
 namespace keros
 {
@@ -11,7 +10,10 @@ namespace keros
     class typed : public virtual element<base>
     {
     public:
-        typed(type<base> p_type) : typeof(std::move(p_type)) {}
+        template<derived_from<type<base>> derived>
+        typed(derived p_type) : typeof(p_type)
+        {
+        }
         typed(const typed&) = default;
         typed(typed&&) noexcept = default;
         typed& operator=(const typed&) = default;
@@ -20,7 +22,7 @@ namespace keros
 
         using guest_ref = typename base::guest_ref;
 
-        type<base> typeof;
+        ptr<type<base>> typeof;
 
         make_visitable
     };

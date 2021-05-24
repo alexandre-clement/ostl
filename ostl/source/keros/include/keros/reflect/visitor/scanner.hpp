@@ -15,13 +15,13 @@ namespace keros
 
         void scan(const base& host) { host.accept(*this); }
 
-        template<detail::derive_from<base> derived>
+        template<std::derived_from<base> derived>
         void scan(const pointer<derived>& host)
         {
             host->accept(*this);
         }
 
-        template<detail::derive_from<base> derived>
+        template<std::derived_from<base> derived>
         void visit_cast(const derived& host)
         {
             this->visit(host);

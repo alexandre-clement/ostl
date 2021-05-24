@@ -12,5 +12,9 @@ namespace keros
       // code
       expression,
       // declaration
-      file>;
+      file,
+      function,
+      named,
+      type,
+      typed>;
 }

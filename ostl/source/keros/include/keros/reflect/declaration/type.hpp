@@ -8,7 +8,7 @@ namespace keros
     class type : public named<base>
     {
     public:
-        type() = default;
+        type(std::string p_name) : named<base>(std::move(p_name)) {}
         type(const type&) = default;
         type(type&&) noexcept = default;
         type& operator=(const type&) = default;

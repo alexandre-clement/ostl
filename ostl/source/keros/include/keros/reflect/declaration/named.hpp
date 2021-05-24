@@ -13,7 +13,7 @@ namespace keros
     public:
         named(std::string p_name) : name(std::move(p_name)) {}
         named(const named&) = default;
-        named(named&&) noexcept = default;
+        named(named&& p_named) noexcept = default;
         named& operator=(const named&) = default;
         named& operator=(named&&) noexcept = default;
         ~named() = default;

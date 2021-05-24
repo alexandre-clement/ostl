@@ -66,4 +66,25 @@ namespace keros
     // retrieve the pointer type from a type `t` of the model and apply it to itself.
     template<class t>
     using pointer_on = apply_pointer_to<t, t>;
+
+    // define ptr as an alias for pointer_on
+    template<class t>
+    using ptr = pointer_on<t>;
+
+    template<class base, class derived>
+    struct is_base_of : std::bool_constant<false>
+    {
+    };
+
+    template<template<class> class base, template<class> class derived, template<class...> class pointer, template<class> class... elements>
+    struct is_base_of<pointer<base<model<pointer, elements...>>>, pointer<derived<model<pointer, elements...>>>>
+        : std::bool_constant<std::is_base_of<base<model<pointer, elements...>>, derived<model<pointer, elements...>>>::value>
+    {
+    };
+
+    template<class base, class derived>
+    constexpr bool is_base_of_v = is_base_of<base, derived>::value;
+
+    template<class derived_ptr, class base>
+    concept derived_from = is_base_of_v<ptr<base>, derived_ptr>;
 }  // namespace keros
