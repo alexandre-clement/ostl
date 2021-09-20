@@ -25,7 +25,7 @@
     };                                                                                                                 \
                                                                                                                        \
     template<::keros::complete_model base>                                                                             \
-    class visitor_class##_implementation<base> : public ::keros::scanner<base>
+    class visitor_class##_implementation<base> : public ::keros::scanner<visitor_class<base>, base>
 
 #define overload(visitor_class, overload_type)                                                                         \
     template<::keros::complete_model base, class... tail>                                                              \

@@ -1,22 +1,19 @@
 #pragma once
 
 #include <functional>
-#include <string>
 
-#include "scope.hpp"
-#include "stage.hpp"
+#include "../reflect/declaration/shader.hpp"
+#include "context.hpp"
+#include "type.hpp"
 
 namespace keros
 {
-    template<stage t>
+    template<complete_model base>
     class writer
     {
     public:
-        void implement_main(std::function<void()>) {}
+        shader<base> vertex(std::function<void(context)>) { return shader<base>(); }
 
-        std::string to_glsl() const { return ""; }
-
-        scope<t, way::in> in;
-        scope<t, way::out> out;
+        shader<base> fragment(std::function<void(context)>) { return shader<base>(); }
     };
 }  // namespace keros

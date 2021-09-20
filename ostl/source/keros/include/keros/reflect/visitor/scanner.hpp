@@ -4,27 +4,34 @@
 
 namespace keros
 {
-    template<complete_model base>
+    template<class derived, complete_model base>
     class scanner;
 
-    template<template<class...> class pointer, template<class> class... elements>
-    class scanner<model<pointer, elements...>> : public model<pointer, elements...>::guest_type
+    template<class derived, template<class...> class pointer, template<class> class... elements>
+    class scanner<derived, model<pointer, elements...>> : public model<pointer, elements...>::guest_type
     {
     public:
         using base = model<pointer, elements...>;
+        using derived_ref = derived&;
 
-        void scan(const base& host) { host.accept(*this); }
-
-        template<std::derived_from<base> derived>
-        void scan(const pointer<derived>& host)
+        derived_ref scan(const base& host)
         {
-            host->accept(*this);
+            host.accept(*this);
+            return static_cast<derived_ref>(*this);
         }
 
         template<std::derived_from<base> derived>
-        void visit_cast(const derived& host)
+        derived_ref scan(const pointer<derived>& host)
+        {
+            host->accept(*this);
+            return static_cast<derived_ref>(*this);
+        }
+
+        template<std::derived_from<base> derived>
+        derived_ref visit_cast(const derived& host)
         {
             this->visit(host);
+            return static_cast<derived_ref>(*this);
         }
     };
 }  // namespace keros

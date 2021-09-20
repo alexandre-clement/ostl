@@ -12,9 +12,10 @@ namespace keros
       // code
       expression,
       // declaration
-      file,
       function,
       named,
+      shader,
       type,
-      typed>;
+      typed,
+      variable>;
 }

@@ -50,11 +50,17 @@ namespace keros
 
     overload(glsl_exporter, element) {}
 
-    overload(glsl_exporter, file) {}
-
     overload(glsl_exporter, function)
     {
-        this->out << host.typeof->name << ' ' << host.name << this->parenthesis() << new_line
+        this->out << host.typeof->name << space << host.name << this->parenthesis() << new_line
                   << this->braces(std::array<element<base>, 0>()) << new_line;
+    }
+
+    overload(glsl_exporter, shader) {}
+
+    template<class host>
+    std::string to_glsl(const host& h)
+    {
+        return glsl_exporter<base_of<host>>().scan(h).result();
     }
 }  // namespace keros
