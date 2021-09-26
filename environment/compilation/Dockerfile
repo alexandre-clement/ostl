@@ -32,11 +32,11 @@ RUN export DEBIAN_FRONTEND=noninteractive  \
     && apt-get upgrade -y \
     && apt install -y \
         cmake \
-        g++-10 \
+        g++-11 \
         vulkan-sdk \
     && wget https://apt.llvm.org/llvm.sh \
     && chmod +x llvm.sh \
-    && ./llvm.sh 11 \
+    && ./llvm.sh 14 \
     && git clone https://github.com/microsoft/vcpkg \
     && ./vcpkg/bootstrap-vcpkg.sh \
     && apt autoremove --purge -y \

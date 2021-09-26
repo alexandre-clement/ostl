@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: environment/compilation/Dockerfile
       args:
-        CC: gcc-10
-        CXX: g++-10
+        CC: gcc-11
+        CXX: g++-11
     volumes:
       - ./out/gcc:/usr/ostl/ostl/out
   clang:
@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: environment/compilation/Dockerfile
       args:
-        CC: clang-11
-        CXX: clang++-11
+        CC: clang-14
+        CXX: clang++-14
     volumes:
       - ./out/clang:/usr/ostl/ostl/out

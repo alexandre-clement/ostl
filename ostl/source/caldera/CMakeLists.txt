@@ -29,5 +29,5 @@ target_link_libraries(
       glass
       Vulkan::Vulkan
       glfw ${GLFW_LIBRARIES}
-      glslang::SPIRV glslang::glslang
+      glslang SPIRV
 )

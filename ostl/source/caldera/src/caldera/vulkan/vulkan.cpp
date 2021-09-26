@@ -3,9 +3,8 @@
 #include <algorithm>
 #include <set>
 
-#include <SPIRV/GlslangToSpv.h>
-
 #include <glslang/Include/ResourceLimits.h>
+#include <glslang/SPIRV/GlslangToSpv.h>
 
 namespace caldera
 {

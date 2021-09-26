@@ -20,17 +20,17 @@ namespace keros
             return static_cast<derived_ref>(*this);
         }
 
-        template<std::derived_from<base> derived>
-        derived_ref scan(const pointer<derived>& host)
+        template<std::derived_from<base> host>
+        derived_ref scan(const pointer<host>& h)
         {
-            host->accept(*this);
+            h->accept(*this);
             return static_cast<derived_ref>(*this);
         }
 
-        template<std::derived_from<base> derived>
-        derived_ref visit_cast(const derived& host)
+        template<std::derived_from<base> host>
+        derived_ref visit_cast(const host& h)
         {
-            this->visit(host);
+            this->visit(h);
             return static_cast<derived_ref>(*this);
         }
     };

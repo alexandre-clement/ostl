@@ -627,6 +627,12 @@ TEST(matrix, alignment)
 
 TEST(matrix, to_iostream)
 {
+// this is not compliant with the cpp standard
+// it is, however, currently supported by msvc
+// it will be supported by gcc 11.2
+// and clang 12.0.1 (trunk)
+// https://stackoverflow.com/questions/59473325/no-member-named-str-in-stdbasic-ostreamchar-with-gcc-and-clang-but-no-p
+#if defined(_MSC_VER)
     abacus::mat4x3 m4x3;
     EXPECT_EQ("mat4x3{(0, 0, 0) (0, 0, 0) (0, 0, 0) (0, 0, 0)}", (std::stringstream() << m4x3).str());
     abacus::vec2 v2(10, 20);
@@ -635,4 +641,5 @@ TEST(matrix, to_iostream)
     EXPECT_EQ("vec2(3, 5)", (std::stringstream() << v3).str());
     abacus::mat3x3 m3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
     EXPECT_EQ("mat3x3{(1, 2, 3) (4, 5, 6) (7, 8, 9)}", (std::stringstream() << m3x3).str());
+#endif
 }

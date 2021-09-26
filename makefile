@@ -45,13 +45,13 @@ docker: ## Build and run all docker compilers
 	docker-compose down
 
 docker-gcc: ## Build and run gcc compilation
-	docker build -f dockerfiles/compiler/Dockerfile --tag gcc:latest --build-arg CC=gcc-10 --build-arg CXX=g++-10 ./ostl
-	docker run --name gcc gcc:latest
+	docker build -f environment/compilation/Dockerfile --tag gcc:latest --build-arg CC=gcc-11 --build-arg CXX=g++-11 .
+	docker run --name gcc gcc:latest; \
 	docker rm --force gcc
 
 docker-clang: ## Build and run clang compilation
-	docker build -f dockerfiles/compiler/Dockerfile --tag clang:latest --build-arg CC=clang-11 --build-arg CXX=clang++-11 ./ostl
-	docker run --name clang clang:latest
+	docker build -f environment/compilation/Dockerfile --tag clang:latest --build-arg CC=clang-14 --build-arg CXX=clang++-14 .
+	docker run --name clang clang:latest; \
 	docker rm --force clang
 
 format: ## Format the code
