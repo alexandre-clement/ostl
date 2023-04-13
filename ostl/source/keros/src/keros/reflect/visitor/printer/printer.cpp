@@ -4,7 +4,7 @@
 
 namespace keros
 {
-    std::string printer::to_string() const { return ss.str(); }
+    std::string printer::to_string() const { return m_string_result.str(); }
 
     printer& printer::indent()
     {
@@ -18,13 +18,13 @@ namespace keros
         return *this;
     }
 
-    void printer::request_indentation() { have_to_apply_indent = true; }
+    void printer::request_indentation() { m_have_to_apply_indent = true; }
 
     void printer::apply_indent()
     {
-        if (have_to_apply_indent)
+        if (m_have_to_apply_indent)
         {
-            have_to_apply_indent = false;
+            m_have_to_apply_indent = false;
             for (int i = 0; i < m_indent; ++i)
             {
                 *this << tab;

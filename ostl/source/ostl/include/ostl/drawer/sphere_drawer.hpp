@@ -10,6 +10,6 @@ namespace ostl
     class drawer<sphere>
     {
     public:
-        static void draw(sphere s, texture t) {}
+        static void draw(sphere, texture) {}
     };
 }  // namespace ostl

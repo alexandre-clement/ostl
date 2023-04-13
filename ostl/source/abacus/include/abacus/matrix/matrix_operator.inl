@@ -233,7 +233,7 @@ namespace abacus
         {
             for (index column = 0; column < result_columns; ++column)
             {
-                for (index k = 0; k < columns; k++)
+                for (index k = 0; k < columns; ++k)
                 {
                     result.at(row, column) += a.at(row, k) * b.at(k, column);
                 }
@@ -287,7 +287,7 @@ namespace abacus
             {
                 for (index column = 0; column < _columns; ++column)
                 {
-                    for (index k = 0; k < _columns; k++)
+                    for (index k = 0; k < _columns; ++k)
                     {
                         this->at(row, column) += temp.at(row, k) * other.at(k, column);
                     }

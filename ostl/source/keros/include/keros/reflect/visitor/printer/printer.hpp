@@ -22,7 +22,7 @@ namespace keros
             detail::match matcher{
               [this](auto&& arg) {
                   apply_indent();
-                  ss << arg;
+                  m_string_result << arg;
               },
               [this](manipulator m) { m(*this); },
               [this](printer& (*f)(printer&) ) { f(*this); },
@@ -43,8 +43,8 @@ namespace keros
     private:
         void apply_indent();
 
-        std::stringstream ss;
+        std::stringstream m_string_result;
         int m_indent = 0;
-        bool have_to_apply_indent = true;
+        bool m_have_to_apply_indent = true;
     };
 }  // namespace keros

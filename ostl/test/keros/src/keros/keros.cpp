@@ -21,10 +21,8 @@ TEST(keros, simple_main)
 {
     using model = keros::default_model<std::shared_ptr>;
     keros::writer<model> writer;
-    keros::shader<model> shader = writer.vertex([](auto ctx) {
-        keros::vec4 position;
+    keros::shader<model> shader = writer.fragment([](auto ctx) {
 
-        ctx.implement_main([&]() { position = keros::vec4(0, 1, 0, 1); });
     });
 
     auto result = keros::to_glsl(shader);

@@ -32,8 +32,8 @@ namespace glass
             void main()
             {
                 vec2 position = .5 + .5 * (-res + 2. * gl_FragCoord.xy) / min(res.x, res.y);
-                vec2 blue_center = .5 + .5 * sin(vec2(1.4142135623730951 * time, 0.6931471805599453 * time));
-                frag_color = .05 * vec4(position, 0, 1.) + vec4(0., 0., pow(1.01 - .5*length(position - blue_center), 16), 0);
+                vec2 flash_light = .5 + .5 * sin(vec2(1.4142135623730951 * time, 0.6931471805599453 * time));
+                frag_color = vec4(position, 1-length(position), 1.) * vec4(pow(1.01 - .5*length(position - flash_light), 2));
             }
         )glsl";
     }

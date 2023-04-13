@@ -12,6 +12,6 @@ namespace glass
         void use_listener(keyboard::callback kc);
 
     private:
-        keyboard::callback keyboard_callback;
+        keyboard::callback m_keyboard_callback;
     };
 }  // namespace glass
