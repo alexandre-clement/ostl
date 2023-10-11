@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../code/code_block.hpp"
 #include "named.hpp"
 #include "typed.hpp"
 
@@ -12,8 +13,10 @@ namespace keros
     {
     public:
         template<derived_from<type<base>> derived>
-        function(std::string p_name, derived p_return_type) : named<base>(std::move(p_name))
-                                                            , typed<base>(p_return_type)
+        function(std::string p_name, derived p_return_type)
+            : named<base>(std::move(p_name))
+            , typed<base>(p_return_type)
+            , body()
         {
         }
         function(const function&) = default;
@@ -23,6 +26,8 @@ namespace keros
         ~function() = default;
 
         using guest_ref = typename base::guest_ref;
+
+        code_block<base> body;
 
         make_visitable
     };

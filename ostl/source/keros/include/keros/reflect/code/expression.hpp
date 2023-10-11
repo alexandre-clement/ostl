@@ -8,7 +8,10 @@ namespace keros
     class expression : public typed<base>
     {
     public:
-        expression() = default;
+        template<derived_from<type<base>> derived>
+        expression(derived p_return_type) : typed<base>(p_return_type)
+        {
+        }
         expression(const expression&) = default;
         expression(expression&&) noexcept = default;
         expression& operator=(const expression&) = default;

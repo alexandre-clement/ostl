@@ -1,6 +1,10 @@
 #pragma once
 
+#include <vector>
+
 #include "../model/element.hpp"
+#include "../model/utility.hpp"
+#include "named.hpp"
 
 namespace keros
 {
@@ -16,6 +20,8 @@ namespace keros
         ~shader() = default;
 
         using guest_ref = typename base::guest_ref;
+
+        std::vector<ptr<named<base>>> named_elements;
 
         make_visitable
     };

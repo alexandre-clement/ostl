@@ -6,8 +6,7 @@
 namespace detail
 {
     template<class t>
-    concept iterable = requires(t i)
-    {
+    concept iterable = requires(t i) {
         i.begin();
         i.end();
     };

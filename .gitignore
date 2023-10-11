@@ -1,5 +1,7 @@
 ostl/CMakeSettings.json
 
+.vs
 out/
+
 ostl/.vs
 ostl/out/

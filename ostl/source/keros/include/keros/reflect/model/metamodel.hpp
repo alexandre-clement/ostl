@@ -7,11 +7,23 @@
 namespace keros
 {
     template<template<class...> class pointer>
-    using default_model = model<pointer,
+    using metamodel = model<pointer,
       element,
       // code
+      code_element,
+      statement,
+      statement_list,
+      code_block,
       expression,
+      literal,
+      binary_expression,
+      addition,
+      for_,
+      if_,
+      directive,
+      version,
       // declaration
+      file,
       function,
       named,
       shader,

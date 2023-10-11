@@ -52,11 +52,64 @@ namespace keros
 
     overload(glsl_exporter, function)
     {
-        this->out << host.typeof->name << space << host.name << this->parenthesis() << new_line
-                  << this->braces(std::array<element<base>, 0>()) << new_line;
+        this->out << host.typeof->name << space << host.name << this->parenthesis() << new_line;
+        this->scan(host.body);
+        this->out << new_line;
     }
 
-    overload(glsl_exporter, shader) {}
+    overload(glsl_exporter, shader)
+    {
+        for (const auto& e : host.named_elements)
+        {
+            this->scan(e);
+            this->out << new_line;
+        }
+    }
+
+    overload(glsl_exporter, code_block)
+    {
+        this->out << '{' << new_line << indent;
+        for (const auto& e : host.statements)
+        {
+            this->scan(e);
+            this->out << new_line;
+        }
+        this->out << unindent << '}';
+    }
+
+    overload(glsl_exporter, binary_expression)
+    {
+        this->scan(host.left);
+        this->out << space;
+        this->scan(host.right);
+    }
+
+    overload(glsl_exporter, addition)
+    {
+        this->scan(host.left);
+        this->out << '+';
+        this->scan(host.right);
+    }
+
+    overload(glsl_exporter, literal) { this->out << host.value; }
+
+    overload(glsl_exporter, file)
+    {
+        for (const auto& e : host.directives)
+        {
+            this->scan(e);
+        }
+        this->out << new_line;
+        for (const auto& e : host.functions)
+        {
+            this->scan(e);
+            this->out << new_line;
+        }
+    }
+
+    overload(glsl_exporter, directive) { this->out << '#'; }
+
+    overload(glsl_exporter, version) { this->out << "#version" << space << host.value << new_line; }
 
     template<class host>
     std::string to_glsl(const host& h)

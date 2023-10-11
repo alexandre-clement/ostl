@@ -1,4 +1,4 @@
 #pragma once
 
-#include "model/default_model.hpp"
+#include "model/metamodel.hpp"
 #include "visitor/visitor.hpp"
