@@ -16,12 +16,21 @@ namespace keros
       code_block,
       expression,
       literal,
+      right_hand_side_receiver,
+      local_variable,
+      unary_expression,
+      prefix_increment,
       binary_expression,
       addition,
+      less_than,
       for_,
       if_,
+      modifier,
+      uniform,
       directive,
       version,
+      reference,
+      variable_reference,
       // declaration
       file,
       function,
@@ -29,5 +38,6 @@ namespace keros
       shader,
       type,
       typed,
+      modifiable,
       variable>;
 }

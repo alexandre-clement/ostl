@@ -50,6 +50,8 @@ namespace keros
 
     overload(glsl_exporter, element) {}
 
+    overload(glsl_exporter, type) { this->out << host.name << space; }
+
     overload(glsl_exporter, function)
     {
         this->out << host.typeof->name << space << host.name << this->parenthesis() << new_line;
@@ -77,6 +79,27 @@ namespace keros
         this->out << unindent << '}';
     }
 
+    overload(glsl_exporter, for_)
+    {
+        this->out << "for (";
+        this->scan(host.initializer);
+        this->out << ';' << space;
+        this->scan(host.halt_condition);
+        this->out << ';' << space;
+        this->scan(host.increment);
+        this->out << ')' << new_line << '{' << new_line << indent;
+
+        this->out << unindent << '}';
+    }
+
+    overload(glsl_exporter, unary_expression) { this->scan(host.operand); }
+
+    overload(glsl_exporter, prefix_increment)
+    {
+        this->out << "++";
+        this->visit_cast<unary_expression<base>>(host);
+    }
+
     overload(glsl_exporter, binary_expression)
     {
         this->scan(host.left);
@@ -87,7 +110,14 @@ namespace keros
     overload(glsl_exporter, addition)
     {
         this->scan(host.left);
-        this->out << '+';
+        this->out << space << '+' << space;
+        this->scan(host.right);
+    }
+
+    overload(glsl_exporter, less_than)
+    {
+        this->scan(host.left);
+        this->out << space << '<' << space;
         this->scan(host.right);
     }
 
@@ -110,6 +140,34 @@ namespace keros
     overload(glsl_exporter, directive) { this->out << '#'; }
 
     overload(glsl_exporter, version) { this->out << "#version" << space << host.value << new_line; }
+
+    overload(glsl_exporter, variable)
+    {
+        for (const auto& e : host.modifiers)
+        {
+            this->scan(e);
+        }
+        this->scan(host.typeof);
+        this->out << host.name;
+    }
+
+    overload(glsl_exporter, right_hand_side_receiver)
+    {
+        this->out << space << '=' << space;
+        this->scan(host.right_hand_side);
+    }
+
+    overload(glsl_exporter, local_variable)
+    {
+        this->visit_cast<variable<base>>(host);
+        this->visit_cast<right_hand_side_receiver<base>>(host);
+    }
+
+    overload(glsl_exporter, uniform) { this->out << "uniform" << space; }
+
+    overload(glsl_exporter, reference) { this->out << host.name; }
+
+    overload(glsl_exporter, variable_reference) { this->visit_cast<reference<base>>(host); }
 
     template<class host>
     std::string to_glsl(const host& h)

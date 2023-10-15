@@ -44,4 +44,23 @@ namespace keros
 
         make_visitable
     };
+
+    template<complete_model base>
+    class less_than : public binary_expression<base>
+    {
+    public:
+        template<derived_from<type<base>> derived>
+        less_than(derived p_return_type) : binary_expression<base>(p_return_type)
+        {
+        }
+        less_than(const less_than&) = default;
+        less_than(less_than&&) noexcept = default;
+        less_than& operator=(const less_than&) = default;
+        less_than& operator=(less_than&&) noexcept = default;
+        ~less_than() = default;
+
+        using guest_ref = typename base::guest_ref;
+
+        make_visitable
+    };
 }  // namespace keros

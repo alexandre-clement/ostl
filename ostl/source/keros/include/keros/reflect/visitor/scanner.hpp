@@ -23,7 +23,10 @@ namespace keros
         template<std::derived_from<base> host>
         derived_ref scan(const pointer<host>& h)
         {
-            h->accept(*this);
+            if (h != nullptr)
+            {
+                h->accept(*this);
+            }
             return static_cast<derived_ref>(*this);
         }
 

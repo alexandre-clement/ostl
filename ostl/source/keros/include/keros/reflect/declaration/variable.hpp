@@ -1,5 +1,6 @@
 #pragma once
 
+#include "modifiable.hpp"
 #include "named.hpp"
 #include "typed.hpp"
 
@@ -9,6 +10,7 @@ namespace keros
     class variable
         : public named<base>
         , public typed<base>
+        , public modifiable<base>
     {
     public:
         template<derived_from<type<base>> derived>
