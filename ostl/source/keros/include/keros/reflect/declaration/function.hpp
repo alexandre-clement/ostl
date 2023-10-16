@@ -10,13 +10,12 @@ namespace keros
     class function
         : public named<base>
         , public typed<base>
+        , public body_holder<base>
     {
     public:
         template<derived_from<type<base>> derived>
-        function(std::string p_name, derived p_return_type)
-            : named<base>(std::move(p_name))
-            , typed<base>(p_return_type)
-            , body()
+        function(std::string p_name, derived p_return_type) : named<base>(std::move(p_name))
+                                                            , typed<base>(p_return_type)
         {
         }
         function(const function&) = default;
@@ -26,8 +25,6 @@ namespace keros
         ~function() = default;
 
         using guest_ref = typename base::guest_ref;
-
-        code_block<base> body;
 
         make_visitable
     };

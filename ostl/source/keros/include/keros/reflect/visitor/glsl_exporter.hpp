@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <detail/detail.hpp>
 
@@ -24,8 +25,18 @@ namespace keros
         {
             return [&](printer& p) -> printer& {
                 p << '(';
-                [[maybe_unused]] detail::match matcher = {[&](auto&& any) { this->out << any; },
-                  [&]<class operand>(const apply_pointer_to<base, operand>& op) { this->scan(op); }};
+                [[maybe_unused]] detail::match matcher{[&](auto&& any) { p << any; },
+                  [&]<class operand>(const apply_pointer_to<base, operand>& op) { this->scan(op); },
+                  [&]<class operand>(const std::vector<apply_pointer_to<base, operand>>& op_list) {
+                      for (const auto& [i, op] : detail::enumerate(op_list))
+                      {
+                          this->scan(op);
+                          if (i != op_list.size() - 1)
+                          {
+                              p << ',' << space;
+                          }
+                      }
+                  }};
                 (matcher.with(p_operands), ...);
                 return p << ')';
             };
@@ -39,7 +50,7 @@ namespace keros
                 for (const auto& e : p_iterable)
                 {
                     this->scan(e);
-                    this->out << new_line;
+                    this->out << ';' << new_line;
                 }
                 return p << unindent << '}';
             };
@@ -52,10 +63,12 @@ namespace keros
 
     overload(glsl_exporter, type) { this->out << host.name << space; }
 
+    overload(glsl_exporter, body_holder) { this->scan(host.body); }
+
     overload(glsl_exporter, function)
     {
         this->out << host.typeof->name << space << host.name << this->parenthesis() << new_line;
-        this->scan(host.body);
+        this->visit_cast<body_holder<base>>(host);
         this->out << new_line;
     }
 
@@ -68,28 +81,15 @@ namespace keros
         }
     }
 
-    overload(glsl_exporter, code_block)
-    {
-        this->out << '{' << new_line << indent;
-        for (const auto& e : host.statements)
-        {
-            this->scan(e);
-            this->out << new_line;
-        }
-        this->out << unindent << '}';
-    }
+    overload(glsl_exporter, statement_list) { this->out << this->braces(host.statements); }
+
+    overload(glsl_exporter, code_block) { this->visit_cast<statement_list<base>>(host); }
 
     overload(glsl_exporter, for_)
     {
-        this->out << "for (";
-        this->scan(host.initializer);
-        this->out << ';' << space;
-        this->scan(host.halt_condition);
-        this->out << ';' << space;
-        this->scan(host.increment);
-        this->out << ')' << new_line << '{' << new_line << indent;
-
-        this->out << unindent << '}';
+        this->out << "for" << space
+                  << this->parenthesis(host.initializer, ';', space, host.halt_condition, ';', space, host.increment) << new_line;
+        this->visit_cast<body_holder<base>>(host);
     }
 
     overload(glsl_exporter, unary_expression) { this->scan(host.operand); }
@@ -107,10 +107,45 @@ namespace keros
         this->scan(host.right);
     }
 
+    overload(glsl_exporter, logical_and)
+    {
+        this->scan(host.left);
+        this->out << space << "&&" << space;
+        this->scan(host.right);
+    }
+
+    overload(glsl_exporter, binary_and)
+    {
+        this->scan(host.left);
+        this->out << space << '&' << space;
+        this->scan(host.right);
+    }
+
+    overload(glsl_exporter, binary_right_shift)
+    {
+        this->scan(host.left);
+        this->out << space << ">>" << space;
+        this->scan(host.right);
+    }
+
     overload(glsl_exporter, addition)
     {
         this->scan(host.left);
         this->out << space << '+' << space;
+        this->scan(host.right);
+    }
+
+    overload(glsl_exporter, substraction)
+    {
+        this->scan(host.left);
+        this->out << space << '-' << space;
+        this->scan(host.right);
+    }
+
+    overload(glsl_exporter, multiplication)
+    {
+        this->scan(host.left);
+        this->out << space << '*' << space;
         this->scan(host.right);
     }
 
@@ -168,6 +203,18 @@ namespace keros
     overload(glsl_exporter, reference) { this->out << host.name; }
 
     overload(glsl_exporter, variable_reference) { this->visit_cast<reference<base>>(host); }
+
+    overload(glsl_exporter, assignment)
+    {
+        this->visit_cast<variable_reference<base>>(host);
+        this->visit_cast<right_hand_side_receiver<base>>(host);
+    }
+
+    overload(glsl_exporter, invocation)
+    {
+        this->visit_cast<reference<base>>(host);
+        this->out << this->parenthesis(host.arguments);
+    }
 
     template<class host>
     std::string to_glsl(const host& h)

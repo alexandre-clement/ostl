@@ -17,7 +17,7 @@ namespace keros
     {
     public:
         template<derived_from<type<base>> derived>
-        variable_reference(derived p_return_type, std::string p_name)
+        variable_reference(std::string p_name, derived p_return_type)
             : expression<base>(p_return_type)
             , reference<base>(std::move(p_name))
         {

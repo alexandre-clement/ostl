@@ -16,6 +16,11 @@ namespace keros
         template<derived_from<type<base>> derived, class value_type>
         literal(derived p_type, value_type p_value) : literal(p_type, std::to_string(p_value))
         {
+            if (value.find('.') != std::string::npos)
+            {
+                // remove trailing zeros in case the value is a float or a double
+                value.erase(value.find_last_not_of('0') + 1, std::string::npos);
+            }
         }
         literal(const literal&) = default;
         literal(literal&&) noexcept = default;

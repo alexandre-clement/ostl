@@ -21,6 +21,13 @@ namespace keros
 
         using guest_ref = typename base::guest_ref;
 
+        template<derived_from<statement<base>> derived>
+        statement_list* add_statement(derived p_statement)
+        {
+            statements.push_back(p_statement);
+            return this;
+        }
+
         std::vector<ptr<statement<base>>> statements;
 
         make_visitable

@@ -84,12 +84,12 @@ TEST(keros, empty_for_loop)
 
     keros::ptr<keros::less_than<model>> halt_condition = std::make_shared<keros::less_than<model>>(intt);
     keros::ptr<keros::literal<model>> ten = std::make_shared<keros::literal<model>>(intt, 10);
-    halt_condition->left = std::make_shared<keros::variable_reference<model>>(intt, "i");
+    halt_condition->left = std::make_shared<keros::variable_reference<model>>("i", intt);
     halt_condition->right = ten;
     for_loop->halt_condition = halt_condition;
 
     keros::ptr<keros::prefix_increment<model>> increment = std::make_shared<keros::prefix_increment<model>>(intt);
-    increment->operand = std::make_shared<keros::variable_reference<model>>(intt, "i");
+    increment->operand = std::make_shared<keros::variable_reference<model>>("i", intt);
     for_loop->increment = increment;
 
     auto result = keros::to_glsl(for_loop);
@@ -100,7 +100,7 @@ TEST(keros, empty_for_loop)
       result);
 }
 
-TEST(keros, ray_matcher)
+TEST(keros, simple_fragment_shader)
 {
     using model = keros::metamodel<std::shared_ptr>;
 
@@ -109,7 +109,48 @@ TEST(keros, ray_matcher)
     keros::ptr<keros::version<model>> version = std::make_shared<keros::version<model>>(450);
 
     keros::ptr<keros::type<model>> voidt = std::make_shared<keros::type<model>>("void");
+    keros::ptr<keros::type<model>> intt = std::make_shared<keros::type<model>>("int");
+    keros::ptr<keros::type<model>> floatt = std::make_shared<keros::type<model>>("float");
+    keros::ptr<keros::type<model>> vec2 = std::make_shared<keros::type<model>>("vec2");
+    keros::ptr<keros::type<model>> vec4 = std::make_shared<keros::type<model>>("vec4");
+
     keros::ptr<keros::function<model>> main = std::make_shared<keros::function<model>>("main", voidt);
+
+    keros::ptr<keros::local_variable<model>> circumscribed_triangle =
+      std::make_shared<keros::local_variable<model>>("circumscribed_triangle", vec2);
+    keros::ptr<keros::substraction<model>> centralized_triangle_coordinates = std::make_shared<keros::substraction<model>>(floatt);
+    keros::ptr<keros::multiplication<model>> triangle_coordinates = std::make_shared<keros::multiplication<model>>(floatt);
+    keros::ptr<keros::invocation<model>> vec2_constructor = std::make_shared<keros::invocation<model>>("vec2", vec2);
+
+    keros::ptr<keros::binary_and<model>> x_coordinate = std::make_shared<keros::binary_and<model>>(intt);
+    x_coordinate->left = std::make_shared<keros::variable_reference<model>>("gl_VertexIndex", intt);
+    x_coordinate->right = std::make_shared<keros::literal<model>>(intt, 1);
+
+    keros::ptr<keros::binary_and<model>> y_coordinate = std::make_shared<keros::binary_and<model>>(intt);
+    keros::ptr<keros::binary_right_shift<model>> vertex_index_divided_by_two = std::make_shared<keros::binary_right_shift<model>>(intt);
+    vertex_index_divided_by_two->left = std::make_shared<keros::variable_reference<model>>("gl_VertexIndex", intt);
+    vertex_index_divided_by_two->right = std::make_shared<keros::literal<model>>(intt, 1);
+    y_coordinate->left = vertex_index_divided_by_two;
+    y_coordinate->right = std::make_shared<keros::literal<model>>(intt, 1);
+
+    vec2_constructor->add_argument(x_coordinate);
+    vec2_constructor->add_argument(y_coordinate);
+
+    triangle_coordinates->left = std::make_shared<keros::literal<model>>(floatt, 4.);
+    triangle_coordinates->right = vec2_constructor;
+    centralized_triangle_coordinates->left = triangle_coordinates;
+    centralized_triangle_coordinates->right = std::make_shared<keros::literal<model>>(floatt, 1.);
+    circumscribed_triangle->right_hand_side = centralized_triangle_coordinates;
+
+    keros::ptr<keros::assignment<model>> gl_position = std::make_shared<keros::assignment<model>>("gl_Position", vec4);
+    keros::ptr<keros::invocation<model>> vec4_constructor = std::make_shared<keros::invocation<model>>("vec4", vec4);
+    vec4_constructor->add_argument(std::make_shared<keros::variable_reference<model>>("circumscribed_triangle", vec2));
+    vec4_constructor->add_argument(std::make_shared<keros::literal<model>>(floatt, 0.));
+    vec4_constructor->add_argument(std::make_shared<keros::literal<model>>(floatt, 1.));
+    gl_position->right_hand_side = vec4_constructor;
+
+    main->body.add_statement(circumscribed_triangle);
+    main->body.add_statement(gl_position);
 
     shader->add_directive(version);
     shader->add_function(main);
@@ -120,6 +161,8 @@ TEST(keros, ray_matcher)
 
 void main()
 {
+    vec2 circumscribed_triangle = 4. * vec2(gl_VertexIndex & 1, gl_VertexIndex >> 1 & 1) - 1.;
+    gl_Position = vec4(circumscribed_triangle, 0., 1.);
 }
 
 )glsl",

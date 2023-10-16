@@ -27,6 +27,63 @@ namespace keros
     };
 
     template<complete_model base>
+    class logical_and : public binary_expression<base>
+    {
+    public:
+        template<derived_from<type<base>> derived>
+        logical_and(derived p_return_type) : binary_expression<base>(p_return_type)
+        {
+        }
+        logical_and(const logical_and&) = default;
+        logical_and(logical_and&&) noexcept = default;
+        logical_and& operator=(const logical_and&) = default;
+        logical_and& operator=(logical_and&&) noexcept = default;
+        ~logical_and() = default;
+
+        using guest_ref = typename base::guest_ref;
+
+        make_visitable
+    };
+
+    template<complete_model base>
+    class binary_and : public binary_expression<base>
+    {
+    public:
+        template<derived_from<type<base>> derived>
+        binary_and(derived p_return_type) : binary_expression<base>(p_return_type)
+        {
+        }
+        binary_and(const binary_and&) = default;
+        binary_and(binary_and&&) noexcept = default;
+        binary_and& operator=(const binary_and&) = default;
+        binary_and& operator=(binary_and&&) noexcept = default;
+        ~binary_and() = default;
+
+        using guest_ref = typename base::guest_ref;
+
+        make_visitable
+    };
+
+    template<complete_model base>
+    class binary_right_shift : public binary_expression<base>
+    {
+    public:
+        template<derived_from<type<base>> derived>
+        binary_right_shift(derived p_return_type) : binary_expression<base>(p_return_type)
+        {
+        }
+        binary_right_shift(const binary_right_shift&) = default;
+        binary_right_shift(binary_right_shift&&) noexcept = default;
+        binary_right_shift& operator=(const binary_right_shift&) = default;
+        binary_right_shift& operator=(binary_right_shift&&) noexcept = default;
+        ~binary_right_shift() = default;
+
+        using guest_ref = typename base::guest_ref;
+
+        make_visitable
+    };
+
+    template<complete_model base>
     class addition : public binary_expression<base>
     {
     public:
@@ -39,6 +96,44 @@ namespace keros
         addition& operator=(const addition&) = default;
         addition& operator=(addition&&) noexcept = default;
         ~addition() = default;
+
+        using guest_ref = typename base::guest_ref;
+
+        make_visitable
+    };
+
+    template<complete_model base>
+    class substraction : public binary_expression<base>
+    {
+    public:
+        template<derived_from<type<base>> derived>
+        substraction(derived p_return_type) : binary_expression<base>(p_return_type)
+        {
+        }
+        substraction(const substraction&) = default;
+        substraction(substraction&&) noexcept = default;
+        substraction& operator=(const substraction&) = default;
+        substraction& operator=(substraction&&) noexcept = default;
+        ~substraction() = default;
+
+        using guest_ref = typename base::guest_ref;
+
+        make_visitable
+    };
+
+    template<complete_model base>
+    class multiplication : public binary_expression<base>
+    {
+    public:
+        template<derived_from<type<base>> derived>
+        multiplication(derived p_return_type) : binary_expression<base>(p_return_type)
+        {
+        }
+        multiplication(const multiplication&) = default;
+        multiplication(multiplication&&) noexcept = default;
+        multiplication& operator=(const multiplication&) = default;
+        multiplication& operator=(multiplication&&) noexcept = default;
+        ~multiplication() = default;
 
         using guest_ref = typename base::guest_ref;
 

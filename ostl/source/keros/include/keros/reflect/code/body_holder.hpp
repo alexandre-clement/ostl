@@ -2,7 +2,7 @@
 
 #include "../model/element.hpp"
 #include "../model/utility.hpp"
-#include "statement.hpp"
+#include "code_block.hpp"
 
 namespace keros
 {
@@ -19,7 +19,7 @@ namespace keros
 
         using guest_ref = typename base::guest_ref;
 
-        ptr<statement<base>> body;
+        code_block<base> body;
 
         make_visitable
     };
