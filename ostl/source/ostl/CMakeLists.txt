@@ -19,4 +19,5 @@ target_link_libraries(
     detail
     caldera
     glass
+    keros
 )

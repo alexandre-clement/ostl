@@ -1,12 +1,18 @@
 #pragma once
 
+#include <memory>
+
 #include <abacus/abacus.hpp>
+
+#include <keros/keros.hpp>
 
 namespace ostl
 {
     template<class _scalar_type, abacus::index _rows, abacus::index _columns>
     class matrix
     {
+    public:
+        using model = keros::metamodel<std::shared_ptr>;
     };
 
     using vec2 = matrix<float, 1, 2>;
